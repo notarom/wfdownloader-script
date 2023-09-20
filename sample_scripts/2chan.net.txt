@@ -1,0 +1,6 @@
+@label [id=1, label="Board", urlregex=#\.net/\w+/(?!(res|src)/\d+)#] 
+goto '.thre > a' fetch .attribute_href not matching #/res/\d+.htm#, customsubfolder pagetitle replaceDirSlash, nextpage location '.psen' 
+also goto '.thre > a' fetch .attribute_href indirectly matching #/res/\d+.htm# {via label 2};  
+or 
+@label [id=2, label="Thread", urlregex=#/res/\d+.htm#] 
+fetch all a_href matching #/src/\d+# customsubfolder pagetitle;

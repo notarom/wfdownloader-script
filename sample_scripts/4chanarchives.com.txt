@@ -1,0 +1,17 @@
+@directive[ 
+    @id: '4chanarchives.com'  
+    @site: https://4chanarchives.com/  
+    @pagination: {    
+        mode: reachablePagesOnly editable     
+        filterRegex: #\.\w+/board/[^/]+/(?<val>\d+)#  
+}
+] 
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="Thread", urlregex=#/thread/\d+#] 
+goto 'a.fileThumb' fetch .attribute_href customsubfolder $urlval: #thread/(?<val>.+)# replaceDirSlash;  
+or 
+@label [id=2, label="Board", urlregex=#\.\w+/board/\w+#] 
+goto 'a.fileThumb' fetch .attribute_href customsubfolder pagetitle replaceDirSlash nextpage location '.pages' filter out #/(catalog|archive)#;  
+or 
+@label [id=3, label="Archive", urlregex=~/archive($|\?|#)~] 
+goto 'a.quotelink' fetch .attribute_href indirectly {via label 1};

@@ -1,0 +1,1 @@
+goto 'a.image' fetch .attribute_href customsubfolder pagetitle;

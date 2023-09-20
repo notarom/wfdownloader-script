@@ -1,0 +1,24 @@
+@label[id=1, label = "detail page", urlregex=#/details/#]
+goto '.show-all' fetch first 1 a_href indirectly, only links matching #/download/# {
+    via label 2
+}
+else goto '.C234' fetch all a_href indirectly, nextpage location 'a.page-next' followNextPagesOfNextPages {
+    goto '.show-all' fetch first 1 a_href indirectly only links matching #/download/# {
+        via label 2
+    }
+};
+ 
+or
+@label[id=2, label = "download page", urlregex=#/download/#]
+goto 'table' fetch all a_href only links matching #/download/[^/]+/[^/]+$#;
+ 
+or
+@label[id=3, label = "video embed page", urlregex=#/embed/#]
+goto 'video > source' fetch .attribute_src;
+ 
+or
+@label[id=4, label = "youtube archive page", urlregex=#/web/.+youtube.com/watch?v=#]
+fetch rewrite url #?v=([w_-]+)# as 'https://web.archive.org/web/2oe_/http://wayback-fakeurl.archive.org/yt/'$1
+indirectly {
+    fetch destination url
+};

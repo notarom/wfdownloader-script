@@ -1,0 +1,3 @@
+fetch destination url indirectly {
+    goto [absolute 1:<td align="center" valign="top">], 'a[data-toggle]' fetch first 1 img_src
+};

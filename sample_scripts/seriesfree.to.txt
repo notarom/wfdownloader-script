@@ -1,0 +1,27 @@
+@directive[  
+    @id: 'seriesfree.to'  
+    @site: https://seriesfree.to/  
+    @runtimefilters: {     
+        Seasons: #/season-(\d+)#     
+        Episodes: #_s\d+_e(\d+)#  
+    }
+] 
+@label[id=3, label="Series Home Page (all seasons)", urlregex=#/serie/#] 
+goto '.series-list .simple-list' fetch all a_href indirectly apply 'Seasons' runtimefilter {via label 2};  
+or 
+@label[id=2, label="Series Season-X page", urlregex=#/season-\d+/#] 
+goto '.series-list .simple-list' fetch all a_href indirectly apply 'Episodes' runtimefilter customsubfolder pagetitle {via label 1};  
+or 
+@label[id=1, label="Series Episode page (links listing)", urlregex=#/episode/#] 
+use captchahandler 1 goto 'a.watch-btn' fetch 1 yielding .attribute_href indirectly customname pagetitle workout extension {via label 4}; 
+or 
+@label[id=4, label="Series Episode watch page", urlregex=#/open/cale#] 
+goto 'a.action-btn' fetch first 1 .attribute_href programmatically;
+
+@captchaHandlers[
+    @id:1(    
+        @triggerByContent: #Please Solve the Captcha to see all links#    
+        @targetContentPattern: #/open/cale/#    
+        @onResolution: retry url
+)
+]

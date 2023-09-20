@@ -1,0 +1,27 @@
+@directive[  
+    @id: 'fanfox.net'  
+    @site: https://fanfox.net/  
+    @runtimefilters: {    
+        Chapters: #/c(\d+(\.\d+)?)/#  
+   }
+] 
+@label [id=1, label="manga chapters listing", urlregex=#/manga/[^/ ]+/?$#] 
+goto '.detail-main-list a' fetch all .attribute_href indirectly apply 'Chapters' runtimefilter {via label 2}; 
+or 
+@label [id=2, label="manga chapter download", urlregex=#/manga/[^/ ]+/[^/ ]+#] 
+make api call to "http://fanfox.net/manga/chapterfun.ashx" with [
+    'cid'= 1:#chapterid\s*=\s*(?<val>\d+)#, 
+    'page'= 1:#imagepage\s*=(?<val>\d+)#, 
+    'key'='' 
+] via GET using connection 1 customsubfolder pagetitle nextpage location '.pager-list-left span' followNextPagesOfNextPages {
+    fetch unfixed first 1 xhrlinks in pattern #(?<val>pix\s*=\s*".+?"\s*;\s*var\s*pvalue\s*=\s*\[\s*".+?")# 
+    from jsobfuscated pattern #.+# indirectly {
+        fetch rewrite url #(?s).+?"(.+?)".+?"(.+?)"# as 'http:'$1$2
+    }
+} keepLinksReferralHistory;
+
+@connections[
+    #id:1(   
+        @headerField: "X-Requested-With"= "XMLHttpRequest"
+    )
+]

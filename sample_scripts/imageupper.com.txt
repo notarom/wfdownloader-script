@@ -1,0 +1,1 @@
+goto [absolute 1:<td class="sm">] fetch first 1 img_src;

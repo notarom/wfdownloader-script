@@ -1,0 +1,9 @@
+@label [id=1, label="gallery page", urlregex=#/a/#] 
+fetch rewrite url ~/a/([\w-_]+)#?$~ as 'https://imageshack.com/rest_api/v2/albums/'$1'?image_limit=0' indirectly {
+    fetch jsonlinks in pattern #"direct_link":"(?<val>[^"]+)"# indirectly {
+        fetch rewrite url #/(imagizer\..+)# as 'https://'$1 
+    }
+};  
+or 
+@label [id=2, label="image page", urlregex=#imageshack\.\w+/i/#] 
+goto '#share-dl' fetch .attribute_href else goto '#lp-image' fetch .attribute_src;

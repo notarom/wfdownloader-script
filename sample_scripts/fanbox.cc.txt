@@ -1,0 +1,40 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label='Post', urlregex=#/posts/\d+#] 
+make api call to 'https://api.fanbox.cc/post.info' with ['postId'=$urlval:#/posts/(?<val>\d+)#] 
+via GET using connection 1 {
+    using values 1 fetch jsonlinks at ($data->body->body->images[]->originalUrl) 
+    customname e'{{username}} {{id}} {{title}} {{#num}}' workout extension removeFromReferralHistory
+} keepLinksReferralHistory; 
+
+or 
+@label [id=2, label='Posts listing', urlregex=#/posts$#] 
+fetch via customhandler 'infinite_scroll' with [
+    'usePLF' = 'true', 
+    'templateUrl' = 'https://api.fanbox.cc/post.listCreator?creatorId={{userId}}&limit=10', 
+    'nextUrl' = '$jsonval:$data->body->nextUrl', 
+    'userId' = '$urlval:#://(?<val>[^/]+)\.fanbox.cc/#', 
+    'baseUrl' = '$urlval:#(?<val>.+)#', 
+    'targetVals' = '$jsonval: $data->body->items[]->id',
+    'rewriteUrls' = '{{baseUrl}}/{{placeholder}}', 
+    'header.Accept' = 'application/json, text/plain, */*',
+    'header.Origin' = 'https://www.fanbox.cc' 
+] customsubfolder pagetitle;  
+
+or 
+@label [id=3, label='User page', urlregex=#//([\w-_]+\.)?fanbox.cc/?($|\?)#] 
+fetch rewrite url #(.+?\.fanbox.cc)# as $1'/posts' indirectly {via label 2};
+
+@connections[
+    @id:1(    
+        @headerField: 'Accept' = 'application/json, text/plain, */*'
+        @headerField: 'Origin' = 'https://www.fanbox.cc' 
+    )
+]
+
+@values[
+    @id:1(
+        'username' = $jsonval:$data->body->user->name ,
+        'id' = $jsonval:$data->body->id ,
+        'title' = $jsonval: $data->body->title 
+    )
+]

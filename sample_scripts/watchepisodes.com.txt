@@ -1,0 +1,18 @@
+@directive[  
+    @id: 'watchepisodes.com'  
+    @site: https://www.watchepisodes.com/ 
+    @runtimefilters: {    
+        Seasons: #-season-(\d+)#     
+        Episodes: #-s\d+e(\d+)#  
+    }
+] 
+@label[id=2, label="Series Home Page (all seasons)", urlregex=~/(.(?!-season-\d+))+$~] 
+goto 'div.el-item' fetch all indirectly apply 'Seasons' runtimefilter {
+    fetch rewrite url #.+# as $0 indirectly apply 'Episodes' runtimefilter {
+        via label 1
+    }
+};  
+or 
+@label[id=1, label="Series Episode page (links listing)", urlregex=#-episode-#] 
+goto 'a[data-actuallink]' fetch 1 yielding .attribute_data-actuallink programmatically 
+customname $htmlval: 'h2' .textval workout extension customsubfolder 'watchepisodes_com';

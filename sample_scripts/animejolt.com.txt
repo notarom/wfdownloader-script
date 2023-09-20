@@ -1,0 +1,18 @@
+@directive[  
+    @id: 'animejolt.org'  
+    @site: https://ww4.animejolt.com/ 
+    @params: {         
+        Recording('Subbed'|'Dubbed') 
+    } 
+    @runtimefilters: { 
+        Episodes: #-episode-(\d+)#  
+    }
+] 
+@label [id=1, label="anime view page", urlregex=#/anime/#] 
+goto '.list-group li' fetch all indirectly apply 'Episodes' runtimefilter {via label 2}; 
+or 
+@label [id=2, label="episode view page", urlregex=#http(.(?!/anime/))+$#] 
+on(Recording='Subbed') 
+    goto '#video .pagination' fetch first 1 a_data-episode programmatically customname pagetitle workout extension customsubfolder 'subbed'  
+else on(Recording='Dubbed') 
+    goto '#video .pagination' fetch from 2 next 1 a_data-episode programmatically customname pagetitle workout extension customsubfolder 'dubbed';

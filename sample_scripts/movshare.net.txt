@@ -1,0 +1,11 @@
+make api call to "http://www.movshare.net/api/player.api.php" with parameters[
+    "key" = $jsvar:"flashvars.filekey",
+    "numOfErrors" = "0", 
+    "cid2"="undefined",
+    "pass"="undefined", 
+    "cid"=$jsvar:"flashvars.cid",
+    "file"=$jsvar:"flashvars.file", 
+    "user"="undefined"
+] via GET {
+    fetch first 1 textlinks
+};

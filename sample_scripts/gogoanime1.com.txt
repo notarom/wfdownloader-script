@@ -1,0 +1,12 @@
+@directive[  
+    @id: 'gogoanime1.com'  
+    @site: https://gogoanime1.com/  
+    @runtimefilters: {     
+        Episodes: #/episode-(\d+)#  
+}
+] 
+@label [id=1, label="anime view page", urlregex=#/watch/(.(?!episode))+$#] 
+goto '.check-list' fetch all indirectly apply 'Episodes' runtimefilter customsubfolder 'gogoanime1' {via label 2}; 
+or 
+@label [id=2, label="episode view page", urlregex=#/episode/#] 
+goto 'a[type]' fetch all .attribute_href keepLinksReferralHistory;

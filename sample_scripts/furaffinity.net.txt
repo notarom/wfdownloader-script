@@ -1,0 +1,18 @@
+@directive[  
+    @id: 'furaffinity.net'  
+    @site: https://www.furaffinity.net/ 
+    @pagination: {    
+        mode: allPages editable     
+        filterRegex: #/(\d+)/\?$# 
+}
+]
+@label [id=2, label="Gallery", urlregex=#/gallery/#] 
+goto '#gallery-gallery' fetch a_href indirectly, only links matching #/view/#, 
+nextpage location '.submission-list' form_action followNextPagesOfNextPages {via label 1};  
+or 
+@label [id=3, label="Favourites", urlregex=#/favorites/#] 
+goto '#gallery-favorites' fetch a_href indirectly, only links matching #/view/#, 
+nextpage location '.pagination a' followNextPagesOfNextPages {via label 1};  
+or 
+@label [id=1, label="View Page", urlregex=#/view/#] 
+goto '.download' fetch all a_href;

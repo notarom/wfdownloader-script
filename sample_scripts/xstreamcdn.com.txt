@@ -1,0 +1,25 @@
+@directive[  
+    @id: 'xstreamcdn.com' 
+    @site: https://xstreamcdn.com/ 
+    @params: {    
+        Quality('480p'|'720p'|'1080p'|'Any'|'All')  
+    }
+]
+@label [id=1, label="Video page", urlregex=#/(v|f)/#] 
+fetch rewrite url #/(v|f)/(.+)# as 'https://xstreamcdn.com/api/source/'$2 indirectly using connection 1 {via label 2} keepLinksReferralHistory; 
+or 
+@label [id=2, label="quality selector", urlregex=#Not to be used directly#] 
+on (Quality='All') fetch all jsonlinks at ($data -> data[] -> file) 
+else on (Quality='480p') fetch first 1 jsonlinks at ($data -> data[] -> file) 
+else on (Quality='720p') fetch from 2 next 1 jsonlinks at ($data -> data[] -> file) 
+else on (Quality='1080p') fetch last 1 jsonlinks at ($data -> data[] -> file)
+else on (Quality='Any') fetch first 1 jsonlinks at ($data -> data[] -> file) keepLinksReferralHistory;
+
+@connections[
+    #id:1(    
+        @requestMethod: POST    
+        @headerField: 'X-Requested-With'= 'XMLHttpRequest'    
+        @postParameter: 'r'= ''
+        @postParameter: 'd'= 'xstreamcdn.com'
+    )
+]

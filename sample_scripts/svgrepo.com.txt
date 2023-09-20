@@ -1,0 +1,16 @@
+@onlyMatchingUrlsAllowed
+@label[id=1, label='home page', urlregex=#://[^/]+/?$#]
+fetch rewrite url #.+# as 'https://www.svgrepo.com/collections/' indirectly {via label 2};
+or
+@label[id=2, label='collections page', urlregex=#/collections/#]
+goto '.style_Collection__Dhplh' fetch all a_href indirectly matching #/collection/#,
+nextpage location 'a[title="Next Page"]' followNextPagesOfNextPages {via label 3};
+or
+@label[id=3, label='collection page', urlregex=#/collection/#]
+fetch all thumbnail links indirectly matching #/svg/#, customsubfolder pagetitle,
+nextpage location 'a[title="Next Page"]' followNextPagesOfNextPages {
+    fetch rewrite url replacing '/svg/' with '/download/', #$# with '.svg'
+};
+or
+@label[id=4, label='svg page', urlregex=#/svg/#]
+fetch first 1 a_href matching #/download/.+\.svg#;

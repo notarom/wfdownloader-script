@@ -1,0 +1,14 @@
+@directive[  
+    @id: '4anime.to'  
+    @site: https://4anime.to/   
+    @runtimefilters: {     
+        Episodes: #-episode-(\d+)#  
+    }
+] 
+@label [id=1, label="anime view page", urlregex=#/anime/#] 
+goto '.episodes' fetch all indirectly, apply 'Episodes' runtimefilter, customsubfolder pagetitle {via label 2}; 
+or 
+@label [id=2, label="episode view page", urlregex=#-episode-#] 
+goto 'video' fetch .attribute_src only links matching #\.mp4# 
+else goto 'video > source' fetch .attribute_src only links matching #\.mp4# 
+else goto 'script' fetch first 1 jsobfuscatedlinks matching #\.mp4# keepLinksReferralHistory;

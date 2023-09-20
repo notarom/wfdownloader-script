@@ -1,0 +1,5 @@
+@label[id = 1, label = "video page", urlregex=#\.\w+/(?!embed-)\w+# ] 
+fetch rewrite url ~\.\w+/(\w+)\.html~ as $scheme://$host/'embed-'$1'-640x360.html' indirectly {via label 2}; 
+or 
+@label[id = 2, label = "video embed", urlregex=#\.\w+/embed-\w+# ]
+goto 'script' fetch all textlinks in pattern #file:\s*"http.*?"# keepLinksReferralHistory;

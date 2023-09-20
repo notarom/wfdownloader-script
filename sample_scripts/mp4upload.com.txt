@@ -1,0 +1,19 @@
+@label[id=1, label='non www', urlregex=#https?://mp4upload\.\w+/embed-#] 
+fetch rewrite url #\.(\w+)/(.+)# as $scheme://'www.mp4upload.'$1/$2 indirectly {via label 2}; 
+
+or 
+@label[id=2, label='www prefix', urlregex=#https?://\w+\.mp4upload\.\w+/embed-#] 
+goto [absolute all:<script>] fetch all jsobfuscatedlinks in pattern #\.src\(\s*"http.+?"\s*\)# using connection 1 
+else goto 'script' fetch all textlinks in pattern #src:\s*['"](?<val>[^'"]+)['"]# using connection 1 keepLinksReferralHistory;  
+
+or 
+@label[id=3, label='download page', urlregex=#mp4upload\.\w+/(?!embed-).+?\.html#] 
+fetch rewrite url #\.(\w+)/(.+)# as $scheme:// 'www.mp4upload.' $1/ 'embed-' $2 indirectly {via label 2}; 
+
+or 
+@label[id=4, label='download page', urlregex=#mp4upload\.\w+/(?!embed-)(.(?!\.html))+$#] 
+fetch rewrite url #\.(\w+)/(.+)# as $scheme:// 'www.mp4upload.' $1/ 'embed-' $2 '.html' indirectly {via label 2};
+
+@connections[
+    #id: 1 (@hotlinkAware)
+]

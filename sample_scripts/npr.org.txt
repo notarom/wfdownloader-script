@@ -1,0 +1,7 @@
+fetch all a_href matching #.mp3#
+also fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://www.npr.org/get/{{id}}/render/partial/next?start=[11-10000]',
+    'id' = '$urlval:#/podcasts/(?<val>\d+)/#',
+    'increment' = '24',
+    'targetVals' = 'href="(?<val>[^"]+\.mp3[^"]+)"'
+] indirectly {fetch rewrite url replacing '&amp;' with '&'};

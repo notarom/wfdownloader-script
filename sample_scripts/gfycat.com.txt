@@ -1,0 +1,46 @@
+@onlyMatchingUrlsAllowed 
+@algorithm [id=1, label='gif page', urlregex=#://[^/]+/[^@/]+$#] 
+goto 'video' fetch all source_src;  
+or 
+@algorithm [id=2, label='user page', urlregex=#/@[^/]+$#] 
+fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://api.gfycat.com/v1/users/{{user}}/gfycats?count=30&cursor={{cursor}}', 
+    'user' = '$urlval:~@(?<val>[^/#\?]+)$~',
+    'cursor' = '',
+    'next.cursor' = '$jsonval: $data->cursor', 
+    'header.Accept' = '*/*',
+    'targetVals' = '$jsonval: $data->gfycats[]->mp4Url'
+] customsubfolder $urlval: #/(?<val>@.+)#;  
+or 
+@algorithm [id=3, label='user likes page', urlregex=#/@[^/]+$#] 
+fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://api.gfycat.com/v1/users/{{user}}/likes/populated?count=30&cursor={{cursor}}', 
+    'user' = '$urlval:~@(?<val>[^/#\?]+)/~',
+    'cursor' = '',
+    'next.cursor' = '$jsonval: $data->cursor',
+    'header.Accept' = '*/*',
+    'targetVals' = '$jsonval: $data->gfycats[]->mp4Url' 
+] customsubfolder $urlval: #/(?<val>@.+)#; 
+or
+@algorithm [id=4, label='user collection page', urlregex=#/collections/[^/]+/#] 
+fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://api.gfycat.com/v1/users/{{user}}/collections/{{collId}}/gfycats?count=30&cursor={{cursor}}', 
+    'user' = '$urlval:~@(?<val>[^/#\?]+)/~', 
+    'collId' = '$urlval:#/collections/(?<val>[^/]+)#',
+    'cursor' = '', 
+    'next.cursor' = '$jsonval: $data->cursor',
+    'header.Accept' = '*/*',
+    'targetVals' = '$jsonval: $data->gfycats[]->mp4Url' 
+] customsubfolder $urlval: #/(?<val>@.+)#;  
+or 
+@algorithm [id=5, label='user collections listing', urlregex=#/collections/?($|\?)#]
+fetch all a_href indirectly, matching #/collections/[^/]+/#, running 1 concurrently {via label 4};  
+or 
+@algorithm [id=6, label='search page', urlregex=#/search/#] 
+fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://api.gfycat.com/v1/gfycats/search?search_text={{searchText}}&count=100&start=[0-100000]',
+    'searchText' = '$urlval: #/search/(?<val>.+)$#', 
+    'increment' = '100', 
+    'header.Accept' = '*/*',
+    'targetVals' = '$jsonval: $data->gfycats[]->mp4Url' 
+] customsubfolder pagetitle;

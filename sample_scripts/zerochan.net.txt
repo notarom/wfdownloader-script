@@ -1,0 +1,20 @@
+@directive[  
+    @id: 'zerochan.net'  
+    @site: https://www.zerochan.net/ 
+    @pagination: {    
+        mode: allPages editable     
+        filterRegex: #(\?|&)p=(?<val>\d+)# 
+    }
+]
+@label [id=1, label="Category, Tag", urlregex=#\.net\/(?!search|\d+$)\w+#] 
+goto 'ul#thumbs2 li' fetch a_href, only links matching #\.full\..+?\.\w+#, nextpage location '.pagination' followNextPagesOfNextPages;  
+or 
+@label [id=2, label="Search", urlregex=#\.net\/search\?q=#] 
+goto 'ul#thumbs2 li > a' fetch .attribute_href indirectly, only links matching #\.net/\d+#, 
+nextpage location '.pagination' followNextPagesOfNextPages {via label 3};  
+or 
+@label [id=3, label="View Page", urlregex=~\.net\/\d+(#|\?)?$~] 
+goto 'meta[name="og:image"]' fetch .attribute_content; 
+or 
+@label [id=4, label="Not supported Page", urlregex=#\.net\/(Series|Manga|Games|Artbooks|Visual(%20|\+| )Novels|Light(%20|\+| )Novels|OVA|Art(%20|\+| )Styles)#] 
+display error 'Skipped support. Did not expect anyone to go this far.';

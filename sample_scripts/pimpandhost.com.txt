@@ -1,0 +1,5 @@
+@label[id=1, label='album page', urlregex=#/album/#]
+goto '.image-block a.image-wrapper' fetch all .attribute_href indirectly, nextpage location '.pagination' followNextPagesOfNextPages  {via label 2};  
+or 
+@label[id=2, label='picture page', urlregex=#/image/#]goto 'img.normal' 
+fetch first 1 .attribute_src;

@@ -1,0 +1,12 @@
+@onlyMatchingUrlsAllowed 
+@label[id=1, label='work page', urlregex=#://[^/]+/[^/]+$#] 
+fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://kavyar.com/api/v2/profiles/{{username}}/hot-works?decayDays=180&decayLength=180d&limit=50&offset=[0-10000]', 
+    'increment' = '50',
+    'username' = '$urlval:~://[^/]+/(?<val>[^/#?]+)~', 
+    'targetVals' = '$jsonval: $data->payload[]->records[]->slug', 
+    'rewriteUrls' = 'https://kavyar.com/works/{{placeholder}}'
+] programmatically customsubfolder pagetitle; 
+or 
+@label[id=2, label='work page', urlregex=#/works/#] 
+goto '.work-detail-placeholder' fetch first 1 img_src;

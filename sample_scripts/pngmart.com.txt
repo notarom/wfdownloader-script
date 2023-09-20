@@ -1,0 +1,13 @@
+@directive[ 
+    @id: 'pngmart.com'  
+    @site: https://www.pngmart.com/  
+    @pagination: {     
+        mode: allPages editable     
+        filterRegex: #/page/(\d+)#  
+}
+]
+@label [id=1, label="Category, Tags, Search", urlregex=#/(category|tag)/|\?s=#] 
+goto 'a.download' fetch .attribute_href indirectly nextpage location '.wp-pagenavi' followNextPagesOfNextPages {via label 2}; 
+or 
+@label [id=2, label="View Page", urlregex=#/image/\d+#] 
+goto 'a.download' fetch .attribute_href;

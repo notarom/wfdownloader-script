@@ -1,0 +1,14 @@
+@label[id=3, label = "video embed", urlregex=#ker\.com/(.(?!mbed-))+#] 
+goto [absolute 2:<form>] submit htmlform {
+    goto 'script' fetch first 1 textlinks in pattern #file:\s*"http.*?",#
+} keepLinksReferralHistory; 
+or 
+@label[id=2, label = "video page", urlregex=#ker\.\w+/(.(?!mbed-))+#] 
+goto [absolute 2:<form>] submit htmlform {
+    goto 'iframe' fetch all .attribute_src indirectly only links matching #vodlocker# {
+        via label 1
+    }
+}; 
+or 
+@label[id=1, label = "video embed", urlregex=#ker\.\w+/embed-#] 
+goto 'script' fetch first 1 textlinks in pattern #file:\s*"http.*?",# keepLinksReferralHistory;

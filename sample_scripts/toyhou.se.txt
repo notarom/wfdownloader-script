@@ -1,0 +1,23 @@
+@directive[
+    @id: 'toyhou.se'
+    @site: https://toyhou.se/
+    @pagination: {
+        mode: allPages editable
+        filterRegex: #page=(\d+)#
+    }
+]
+@onlyMatchingUrlsAllowed
+@label[id=1, label='all characters page', urlregex=#://[^/]+/[^/]+/(characters|favorites)#]
+goto '.gallery-row .thumb-image a' fetch a_href indirectly nextpage location '.pagination' followNextPagesOfNextPages {via label 2}
+else goto 'form[action="https://toyhou.se/~account/warnings/accept"]' submit htmlform {
+    goto '.gallery-row .thumb-image a' fetch a_href indirectly nextpage location '.pagination' followNextPagesOfNextPages {via label 2}
+};
+ or
+@label[id=2, label='character page', urlregex=#://[^/]+/\d+\.(.(?!/gallery))+$#]
+fetch rewrite url ~((.(?!(#|\?)))+)~ as $1'/gallery' indirectly {via label 3};
+ or
+@label[id=3, label='character gallery page', urlregex=#://[^/]+/\d+\..+/gallery#]
+goto '.gallery-item .thumb-image a' fetch a_href customsubfolder pagetitle
+else goto 'form[action="https://toyhou.se/~account/warnings/accept"]' submit htmlform {
+    goto '.gallery-item .thumb-image a' fetch .attribute_href customsubfolder pagetitle
+};

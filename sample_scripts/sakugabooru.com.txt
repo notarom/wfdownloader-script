@@ -1,0 +1,11 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="picture view page", urlregex=#/post/show/\d+#]
+goto 'a#highres, a.original-file-unchanged' fetch .attribute_href;
+
+or 
+@label [id=2, label="gallery/search page", urlregex=#/post\?#]
+goto '#post-list-posts a.directlink' fetch all .attribute_href customsubfolder pagetitle nextpage location '.pagination' followNextPagesOfNextPages;
+
+or 
+@label [id=3, label="pool view page", urlregex=#/pool/show/\d+#]
+goto 'a.thumb' fetch .attribute_href indirectly customsubfolder pagetitle {via label 1};

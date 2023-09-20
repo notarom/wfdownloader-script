@@ -1,0 +1,20 @@
+@directive[  
+    @id: 'archived.moe'  
+    @site: https://archived.moe/  
+    @pagination: {     
+        mode: reachablePagesOnly editable     
+        filterRegex: #/page/(?<val>\d+)# 
+}
+] 
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="Thread", urlregex=#/thread/\d+#] 
+goto '.thread_image_box > a' fetch .attribute_href indirectly, 
+customsubfolder $urlval: #thread/(?<val>.+)# replaceDirSlash { 
+    fetch rewrite url #/redirect/(.+)$# as 'http://i.4cdn.org/diy/'$1 
+};  
+or 
+@label [id=2, label="Board", urlregex=#://[^/]+/\w+/(page/\d+/)?$#] 
+goto '.thread_image_box > a' fetch .attribute_href indirectly, 
+customsubfolder pagetitle replaceDirSlash, nextpage location '.paginate' { 
+    fetch rewrite url #/redirect/(.+)$# as 'http://i.4cdn.org/diy/'$1 
+};

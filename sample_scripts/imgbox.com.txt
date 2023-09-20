@@ -1,0 +1,5 @@
+@label [id=1, label="gallery page", urlregex=#/g/#] 
+goto '.boxed-content' fetch all indirectly {via label 2};  
+or 
+@label [id=2, label="image page", urlregex=#imgbox\.\w+/\w{2,}#] 
+goto [absolute 1:<div class="image-container">] fetch first 1 img_src;

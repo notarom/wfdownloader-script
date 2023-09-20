@@ -1,0 +1,12 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="picture view page", urlregex=#=view#]
+goto 'meta[property="og:image"]', 'meta[name="og:image"]' fetch .attribute_content customname $urlval: #&id=(?<val>\d+)# workout extension 
+else goto [abs 1:<a $text=#(?i)Original\s+image#>] fetch .attribute_href customname $urlval: #&id=(?<val>\d+)# workout extension; 
+
+or 
+@label [id=2, label="gallery/search page", urlregex=#tags=#]
+goto 'a[id]' fetch .attribute_href indirectly customsubfolder pagetitle nextpage location '.pagination' followNextPagesOfNextPages {via label 1};
+
+or 
+@label [id=3, label="pool view page", urlregex=#page=pool#]
+goto 'span[id] a' fetch .attribute_href indirectly customsubfolder pagetitle nextpage location '.pagination' followNextPagesOfNextPages {via label 1};

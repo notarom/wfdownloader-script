@@ -1,0 +1,61 @@
+@onlyMatchingUrlsAllowed 
+@label[id=1, label='user models page', urlregex=#/user/[^/]+/models#]
+using values 1 fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '5',
+    'properlyEncodeTemplateUrl' = 'true',
+    'templateUrl' = 'https://civitai.com/api/trpc/model.getAll?input={"json":{"period":"AllTime","sort":"Newest","view":"feed","username":"{{username}}","cursor":{{cursor}},"authed":true}}',
+    'username' = '$urlval:#/user/(?<val>[^/]+)/#',
+    'cursor' = 'null',
+    'next.cursor' = '$jsonval:$data->result->data->json->nextCursor',
+    'targetVals' = '$jsonval:$data->result->data->json->items[]->id',
+    'rewriteUrls' = 'https://civitai.com/models/{{placeholder}}',
+    'header.Content-Type' = 'application/json',
+    'header.Referer' = '$urlval:#(?<val>.+)#'
+] indirectly customsubfolder e'{{username}}/models' {via label 4};
+ or
+@label[id=2, label='user posts page', urlregex=#/user/[^/]+/posts#]
+using values 1 fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '5',
+    'properlyEncodeTemplateUrl' = 'true',
+    'startUrl' = 'https://civitai.com/api/trpc/post.getInfinite?input={"json":{"period":"AllTime","periodMode":"published","sort":"Newest","view":"categories","username":"{{username}}","browsingMode":"NSFW","include":[],"cursor":null,"authed":true},"meta":{"values":{"cursor":["undefined"]}}}',
+    'templateUrl' = 'https://civitai.com/api/trpc/post.getInfinite?input={"json":{"period":"AllTime","periodMode":"published","sort":"Newest","view":"categories","username":"{{username}}","browsingMode":"NSFW","include":[],"cursor":"{{cursor}}","authed":true},"meta":{"values":{"cursor":["Date"]}}}',
+    'username' = '$urlval:#/user/(?<val>[^/]+)/#',
+    'cursor' = 'null',
+    'next.cursor' = '$jsonval:$data->result->data->json->nextCursor',
+    'targetVals' = '$jsonval:$data->result->data->json->items[]->id',
+    'rewriteUrls' = 'https://civitai.com/posts/{{placeholder}}',
+    'header.Content-Type' = 'application/json',
+    'header.Referer' = '$urlval:#(?<val>.+)#'
+] indirectly customsubfolder e'{{username}}/posts' {via label 5};
+ or
+@label[id=3, label='user page and user image page', urlregex=#/user/[^/]+($|/images)#]
+fetch rewrite url #(.+?/user/[^/?]+)# as $1'/posts' indirectly {via label 2};
+ or
+@label[id=4, label='model page', urlregex=#/models/\d+#]
+fetch first 1 a_href matching #/api/download/models#;
+ or
+@label[id=5, label='post page', urlregex=#/posts/\d+#]
+using values 2 from pattern #<script\s+id\s*=\s*"__NEXT_DATA__"\s+type\s*=\s*"application/json"\s*>(?<val>.+?)</script># fetch jsonlinks at 
+($data->abs items[]) as objects [
+    'root' = 'xG1nkqKTMzGDvpLrqFT7WA',
+    'name' = $jsonval:$data->name ,
+    'slug' = $jsonval:$data->url ,
+    'url'  = e'https://image.civitai.com/{{root}}/{{slug}}/{{name}}'
+] customname e'{{postId}} - {{title}} {{#num}}' workout extension;
+or
+@label[id=6, label='image page', urlregex=#/images/\d+$#]
+goto 'meta[property="og:image"]' fetch .attribute_content customname $urlval:#/(?<val>images/\d+)# workout extension;
+or
+@label[id=7, label='image page with query', urlregex=#/images/\d+.+#]
+fetch rewrite url #(.+?/images/\d+)# as $1 indirectly {via label 6};
+
+@values[
+@id:1(
+    'username' = $urlval:#/user/(?<val>[^/]+)/#
+)
+@id:2(
+    'postId' = $urlval:#/posts/(?<val>\d+)#,
+    'titleRaw' = 1:#<title>(?<val>.+?)</title># ,
+    'title' = $fnval:decodeValue(titleRaw)
+)
+]

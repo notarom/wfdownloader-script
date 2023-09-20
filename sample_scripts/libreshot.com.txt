@@ -1,0 +1,5 @@
+@label [id=1, label="Tag, Search Page", urlregex=#/free-images/|\?s=#] 
+goto 'a.featured-media' fetch .attribute_href indirectly nextpage location '.archive-nav' followNextPagesOfNextPages {via label 2};  
+or 
+@label [id=2, label="Image Page", urlregex=#://[^/]+/[^/]+/$#] 
+goto 'a.download_01' fetch .attribute_href;

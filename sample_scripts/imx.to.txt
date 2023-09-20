@@ -1,0 +1,8 @@
+@label[id=1, label='gallery page', urlregex=#/g/#]
+goto '.tooltip a' fetch .attribute_href indirectly {via label 2};  
+or 
+@label[id=2, label='image page', urlregex=#/i/#]
+goto 'img.centred' fetch .attribute_src 
+else goto 'form' submit htmlform {
+    goto 'img.centred' fetch .attribute_src
+} keepLinksReferralHistory;

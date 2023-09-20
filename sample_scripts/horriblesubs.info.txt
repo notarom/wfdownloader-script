@@ -1,0 +1,16 @@
+@directive[  
+    @id: 'horriblesubs.info'  
+    @site: https://horriblesubs.info/ 
+    @params: {     
+        Quality('480p'|'720p'|'1080p'|'Any')  
+    }
+]
+@label[id=1, label="Anime page", urlregex=#/shows/#] 
+goto 'script' fetch unfixed all textlinks in pattern #hs_showid\s*=\s*(?<val>\d+)# indirectly customsubfolder pagetitle {
+    fetch rewrite url #.+# as 'https://horriblesubs.info/api.php?method=getshows&type=show&showid='$0 indirectly {
+        on(Quality='Any') goto '.rls-links-container' fetch last 1 a_href only links matching #nyaa.si# 
+        else on(Quality='480p') goto '.link-480p .hs-torrent-link' fetch first 1 a_href 
+        else on(Quality='720p') goto '.link-720p .hs-torrent-link' fetch first 1 a_href 
+        else on(Quality='1080p') goto '.link-1080p .hs-torrent-link' fetch first 1 a_href 
+    }
+};

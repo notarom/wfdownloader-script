@@ -1,0 +1,3 @@
+goto [absolute 1:<form>] submit htmlform {
+    goto [absolute all:<script>] fetch all textlinks in pattern #"file"\s*:\s*"http.*?"#
+}keepLinksReferralHistory;

@@ -1,0 +1,6 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="picture view page", urlregex=#/post/view/#]
+goto '#main_image, video source' fetch .attribute_src; 
+or 
+@label [id=2, label="gallery/search page", urlregex=#/post/list#]
+goto 'a.thumb' fetch .attribute_href indirectly customsubfolder pagetitle nextpage location '#paginator' followNextPagesOfNextPages {via label 1};

@@ -1,0 +1,11 @@
+@label [id=1, label="gallery page", urlregex=#/gallery/#] 
+goto '.images' fetch all indirectly {via label 2};
+or 
+@label [id=2, label="picture view page", urlregex=#/image/#] 
+open page using connection 1 goto 'img.main-image' fetch all .attribute_src;
+
+@connections[
+@id:1(     
+    @headerField: 'Cookie'= 'nsfw_inter=1; {{#siteCookies}}'
+)
+]

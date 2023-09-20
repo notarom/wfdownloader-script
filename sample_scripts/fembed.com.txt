@@ -1,0 +1,23 @@
+@directive[  
+    @id: 'fembed.com' 
+    @site: https://www.fembed.com/  
+    @params: {    
+        Quality('360p'|'480p'|'720p'|'1080p'|'Any'|'All') 
+    }
+]
+@label[id=1, label = "video page", urlregex=#/v/#] 
+fetch rewrite url ~\w+\.\w+/\w+/((\w|-|_)+?)(/|#)?$~ as $scheme://$host/'api/source/'$1 indirectly using connection 1 {
+    on (Quality='All') fetch jsonlinks at ($data -> data[] -> file) 
+    else on (Quality='360p') fetch jsonlinks in pattern #"file"\s*:\s*"(?<val>http[^{}]+?)",\s*.{1,13}"360p"# 
+    else on (Quality='480p') fetch jsonlinks in pattern #"file"\s*:\s*"(?<val>http[^{}]+?)",\s*.{1,13}"480p"# 
+    else on (Quality='720p') fetch jsonlinks in pattern #"file"\s*:\s*"(?<val>http[^{}]+?)",\s*.{1,13}"720p"# 
+    else on (Quality='1080p') fetch jsonlinks in pattern #"file"\s*:\s*"(?<val>http[^{}]+?)",\s*.{1,13}"1080p"# 
+    else on (Quality='Any') fetch jsonlinks at ($data -> data[1] -> file) 
+} keepLinksReferralHistory;
+
+@connections[
+    #id:1(   
+        @requestMethod: POST   
+        @headerField: 'X-Requested-With'= 'XMLHttpRequest'
+   )
+]

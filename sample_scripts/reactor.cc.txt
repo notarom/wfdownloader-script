@@ -1,0 +1,21 @@
+/*
+As this script supports many sites, see regex pattern to match the known various sites below:
+
+https?://(reactor|safereactor|joyreactor|.*\\.reactor).(cc|com)/
+
+*/
+
+@directive[  
+    @id: 'reactor.cc' 
+    @site: https://reactor.cc/ 
+    @pagination: {     
+        mode: allPages editable    
+        filterRegex: #/(\d+)$# 
+    }
+] 
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="Post", urlregex=#/post/#] 
+goto '.image img' fetch .attribute_src keepLinksReferralHistory;  
+or 
+@label [id=2, label="Tag,User,Search page", urlregex=#/(tag|user)/|/search(\?q|/)#] 
+goto '.image img' fetch .attribute_src nextpage location '.pagination_expanded' followNextPagesOfNextPages keepLinksReferralHistory;

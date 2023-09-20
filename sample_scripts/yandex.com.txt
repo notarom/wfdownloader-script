@@ -1,0 +1,3 @@
+@onlyMatchingUrlsAllowed
+@label [id=1, label="Images Page", urlregex=#/images/search\?#] 
+fetch all textlinks in pattern #data-bem="[^"]+"# nextpage location '.more_direction_next' followNextPagesOfNextPages;

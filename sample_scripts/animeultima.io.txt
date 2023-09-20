@@ -1,0 +1,9 @@
+@label [id=1, label="anime view page", urlregex=#/watch/#] 
+goto '.td-lang-subbed, .td-lang-dubbed a' fetch all indirectly {via label 2};
+or 
+@label [id=3, label="episode view page", urlregex=#animeultima\.\w+/(.(?!w?atch))+#] 
+goto '#embed_holder iframe' fetch all .attribute_src programmatically customname pagetitle extension workout keepLinksReferralHistory;
+or 
+@label [id=2, label="episode view page", urlregex=#animeultima\.\w+/(.(?!w?atch))+#] 
+goto '#embed_holder iframe' fetch all .attribute_src programmatically customname pagetitle extension workout  
+else goto '#related-videos .thumb' fetch first 1 yielding a_href indirectly {via label 3} keepLinksReferralHistory;

@@ -1,0 +1,7 @@
+@label[id = 1, label = "video embed", urlregex=#\.\w+/embed-\w+# ]
+fetch rewrite url ~\w+\.\w+/embed-(\w+)(-\d+x\d+)?(\.html)?~ as $scheme://$host/$1 indirectly {via label 2};  
+or 
+@label[id = 2, label = "video page", urlregex=#\.\w+/(?!embed-)\w+# ] 
+goto [absolute 2:<form>] wait 2 seconds submit htmlform {
+    goto [absolute all:<script>] fetch first 1 textlinks in pattern #src:\s*('http.*?'|"http.*?"),#
+} keepLinksReferralHistory;

@@ -1,0 +1,26 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label='View image', urlregex=#/viewimage/\d+#] 
+goto 'img.pure-img' fetch .attribute_src; 
+
+or 
+@label [id=2, label='View video', urlregex=#/video/\d+#] 
+goto 'iframe' fetch .attribute_src programmatically; 
+
+or 
+@label [id=3, label='List page', urlregex=#/list/#] 
+fetch all a_href programmatically only links matching #/(viewimage|video)/\d+#;  
+
+or 
+@label [id=4, label='Person pictures page', urlregex=#://[^/]+/[^/]+/pictures#] 
+fetch all a_href indirectly matching #/viewimage/\d+#, customsubfolder $urlval:#(?<val>/[^/]+/pictures)#, 
+nextpage location '.pages' followNextPagesOfNextPages {via label 1};  
+
+or 
+@label [id=5, label='Person videos page', urlregex=#://[^/]+/[^/]+/videos#] 
+fetch all a_href indirectly matching #/video/\d+#, customsubfolder $urlval:#(?<val>/[^/]+/videos)#, 
+nextpage location '.pages' followNextPagesOfNextPages {via label 2};  
+
+or 
+@label [id=6, label='Person page', urlregex=#://[^/]+/[^/]+$#] 
+fetch rewrite url #.+# as $0'/pictures' programmatically 
+also fetch rewrite url #.+# as $0'/videos' programmatically;

@@ -1,0 +1,5 @@
+@label [id=1, label="gallery page", urlregex=#/album/#] 
+goto '.galleryThumbs a' fetch .attribute_href indirectly {via label 2};  
+or 
+@label [id=2, label="image page", urlregex=#/p/.+?\.html#] 
+goto 'meta[property="og:image"]' fetch .attribute_content;

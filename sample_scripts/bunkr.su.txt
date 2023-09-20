@@ -1,0 +1,11 @@
+@label[id=1, label='gallery page', urlregex=#/a/#] 
+goto 'a.grid-images_box-link' fetch .attribute_href not matching #\.(mp4|avi|mpeg|mov|wmv)$#, customsubfolder pagetitle 
+also goto 'a.grid-images_box-link' fetch .attribute_href indirectly matching #\.(mp4|avi|mpeg|mov|wmv)$#, customsubfolder pagetitle { via label 2}; 
+
+or 
+@label[id=2, label='video page', urlregex=#/v/#] 
+goto 'video' fetch first 1 source_src; 
+
+or 
+@label[id=3, label='download page', urlregex=#/d/#] 
+goto '.mb-6 a.text-primary' fetch a_href;

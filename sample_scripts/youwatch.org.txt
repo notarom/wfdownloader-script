@@ -1,0 +1,5 @@
+goto '#player_wrappe' fetch first 1 iframe_src indirectly { 
+    goto 'iframe' fetch first 1 .attribute_src indirectly {
+        goto [absolute all:<script>] fetch all textlinks in pattern #file:\s*"http.*?",#
+    }
+} elevateInnerGrammars, keepLinksReferralHistory;

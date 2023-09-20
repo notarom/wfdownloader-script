@@ -1,0 +1,4 @@
+goto 'img.centred' fetch .attribute_src 
+else goto 'form' submit htmlform {
+    goto 'img.centred' fetch .attribute_src
+};

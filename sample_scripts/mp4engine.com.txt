@@ -1,0 +1,5 @@
+@label[id = 1, label = "video page", urlregex=#\.\w+/(?!embed-)\w+# ] 
+goto 'script' fetch first 1 jsobfuscatedlinks in pattern #file\s*:\s*"http.*?",# keepLinksReferralHistory;
+or 
+@label[id = 2, label = "video embed", urlregex=#\.\w+/embed-\w+# ]
+goto 'script' fetch first 1 jsobfuscatedlinks in pattern #file\s*:\s*"http.*?",# keepLinksReferralHistory;

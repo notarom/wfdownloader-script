@@ -1,0 +1,12 @@
+@directive[  
+    @id: 'mangaclub.net'  
+    @site: https://mangaclub.net/  
+    @runtimefilters: {    
+        Chapters: #-chapter-(\d+)#  
+    }
+]
+@label [id=1, label="manga chapters listing", urlregex=#\.\w+/(.(?!-chapter-))+\.html$#] 
+goto '.tablepress' fetch all indirectly apply 'Chapters' runtimefilter  {via label 2}; 
+or 
+@label [id=2, label="manga chapter download", urlregex=#-chapter-#] 
+goto '.td-post-content a' fetch all .attribute_href customsubfolder pagetitle;

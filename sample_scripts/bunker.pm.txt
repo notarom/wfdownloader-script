@@ -1,0 +1,6 @@
+@label[id=1, label='gallery page', urlregex=#/a/#] 
+goto 'a.image' fetch .attribute_href not matching #/v/# customsubfolder pagetitle 
+also goto 'a.image' fetch .attribute_href indirectly matching #/v/# customsubfolder pagetitle { via label 2}; 
+or 
+@label[id=2, label='video page', urlregex=#/v/#] 
+fetch rewrite url #.+?/v/(.+$)# as 'https://cdn.bunker.pm/'$1;

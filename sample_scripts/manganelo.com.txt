@@ -1,0 +1,12 @@
+@directive[  
+    @id: 'manganelo.com'  
+    @site: https://manganelo.com/   
+    @runtimefilters: {     
+        Chapters: #/chapter(_|-)(?<val>\d+(\.\d+)?)#  
+    }
+] 
+@label [id=1, label="manga chapters listing", urlregex=#/manga-#] 
+goto '.chapter-name' fetch .attribute_href indirectly apply 'Chapters' runtimefilter {via label 2}; 
+or 
+@label [id=2, label="manga chapter download", urlregex=#/chapter-#] 
+goto '.container-chapter-reader img' fetch all img_src keepLinksReferralHistory;

@@ -1,0 +1,8 @@
+@label [id=1, label="Category/Search Page", urlregex=#\.net/wallpaper-\w+|\?search=#]
+goto '.paper-title' fetch all a_href indirectly, nextpage location '.pagination' {via label 2};  
+or 
+@label [id=2, label="Wallpaper Page", urlregex=#-hd-wallpaper$#]
+goto '.details-stats' fetch all a_href indirectly, only links matching #/\d+x\d+# {via label 3};
+or 
+@label [id=3, label="Download page", urlregex=#/\d+x\d+#] 
+goto '.wallpaper-preview-buttons a' fetch .attribute_href;

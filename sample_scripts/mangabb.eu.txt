@@ -1,0 +1,7 @@
+@label [id=1, label="manga chapters listing", urlregex=#/manga/#] 
+goto [absolute 1:<div id="chapters">] fetch all indirectly, nextpage location [absolute 1:<ul class="pagination">] button_href {via label 2}; 
+or 
+@label [id=2, label="manga chapter download", urlregex=#/chapter-\d+#] 
+goto [absolute 1:<div id="asset_2">] fetch all option_value indirectly {
+    goto [absolute 1:<div id="manga_viewer">] fetch first 1 img_src
+};

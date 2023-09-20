@@ -1,0 +1,5 @@
+@label[id=1, label='gallery page', urlregex=#/gallery/#]
+goto '.thumb a' fetch .attribute_href indirectly {via label 2};  
+or 
+@label[id=2, label='image page', urlregex=#postimg\.\w+/[^/]+$#]
+goto '#main-image' fetch .attribute_src keepLinksReferralHistory;

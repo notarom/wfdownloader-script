@@ -1,0 +1,9 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="Listing Page", urlregex=#/images/[^/]+/[^/]+#] 
+goto '.png_png' fetch img_src nextpage location '.pagination' followNextPagesOfNextPages;  
+or
+@label [id=2, label="View Page", urlregex=#/image/#] 
+goto 'meta[property="og:image"]' fetch .attribute_content; 
+or 
+@label [id=3, label="Photo Page", urlregex=#/photo/#] 
+goto 'a.quick-download' fetch first 1 .attribute_href;

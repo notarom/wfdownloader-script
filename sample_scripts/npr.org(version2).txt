@@ -1,0 +1,14 @@
+fetch all a_href matching #.mp3#
+also fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://www.npr.org/get/{{id}}/render/partial/next?start=[11-100]',
+    'id' = '$urlval:#/podcasts/(?<val>d+)/#',
+    'increment' = '24',
+    'targetVals' = '$htmlval:".item-info" 1:#(?s)(?<val>.+)#',
+    'targetValsAreObjects' = 'true',
+    'object.url' = '$htmlval: "a.audio-module-listen" .attribute_href',
+    'object.id' = '$htmlval: ".item-info > article" .attribute_id',
+    'object.title' = '$htmlval: "h4" .textval',
+    'object.date' = '$htmlval: ".item-info >h3 > time" .attribute_datetime',
+    'object.customName' = '[{{date}}] {{title}}',
+    'object.saveProperties' = 'url,date,title,id'
+];

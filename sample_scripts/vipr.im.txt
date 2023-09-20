@@ -1,0 +1,5 @@
+@label[id=2, label="gallery page", urlregex=#/p/#]
+goto '.gallery' fetch a_href indirectly nextpage location '.paging' followNextPagesOfNextPages {via label 1};
+or
+@label[id=1, label="gallery page", urlregex=#://[^/]+/(?!p/)\w+#]
+goto 'img.pic' fetch .attribute_src;

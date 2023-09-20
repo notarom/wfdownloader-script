@@ -1,0 +1,16 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="Thread", urlregex=#/thread/\d+#] 
+goto 'a.fileThumb' fetch .attribute_href customsubfolder $urlval: #thread/(?<val>.+)# replaceDirSlash;  
+or 
+@label [id=2, label="Board", urlregex=#://[^/]+/\w+/?$#] 
+goto 'a.fileThumb' fetch .attribute_href customsubfolder pagetitle replaceDirSlash nextpage location '.pages' filter out #/(catalog|archive)#;  
+or 
+@label [id=3, label="Archive", urlregex=~/archive($|\?|#)~] 
+goto 'a.quotelink' fetch .attribute_href indirectly {via label 1};  
+or 
+@label [id=4, label="Catalog", urlregex=~/catalog($|\?|#)~] 
+goto 'script' fetch all textlinks in pattern #"(?<val>\d+)":\{"date"# indirectly { 
+    fetch rewrite url #(.+?)/(\d+$)# as $1'/thread/'$2 indirectly {
+         via label 1
+    }
+};

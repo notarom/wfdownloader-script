@@ -1,0 +1,15 @@
+@directive[
+    @id: 'anime-pictures.net'  
+    @site: https://anime-pictures.net/  
+    @pagination: {    
+        mode: allPages editable     
+        filterRegex: #(/view_posts/(\d+))#  
+    }
+] 
+@onlyMatchingUrlsAllowed 
+@label [id=2, label="Tag/Search page", urlregex=#/pictures/view_posts/#] 
+goto '.img_block_big > a' fetch .attribute_href indirectly,
+nextpage location '.numeric_pages' followNextPagesOfNextPages {via label 1};  
+or
+@label [id=1, label="View Page", urlregex=#/pictures/view_post/\d+#] 
+goto 'a.download_icon' fetch .attribute_href;

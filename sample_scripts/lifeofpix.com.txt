@@ -1,0 +1,5 @@
+@label [id=1, label="Photographer,Gallery,Search Page", urlregex=#/(photographers|gallery|search)/|\?s=#] 
+goto 'a.download' fetch .attribute_href nextpage location '.pagination' followNextPagesOfNextPages;  
+or 
+@label [id=2, label="Photo Page", urlregex=#/photo/#] 
+goto 'a.download' fetch .attribute_href;

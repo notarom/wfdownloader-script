@@ -1,0 +1,2 @@
+@label [id=1, label="image gallery", urlregex=#/galleries/#] 
+goto '.mc-gallery-view-image img' fetch all .attribute_src nextpage location '.mc-gallery-view-image' followNextPagesOfNextPages;

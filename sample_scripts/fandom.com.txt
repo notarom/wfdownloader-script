@@ -1,0 +1,15 @@
+@label [id=1, label="Gallery page", urlregex=#/Gallery#] 
+fetch all img_src indirectly only links matching #/revision/# {
+    fetch rewrite url replacing #/revision/latest/.+?\?# with '/revision/latest/?'
+}
+also goto 'div[type="slideshow"]' fetch all img_data-src indirectly only links matching #/revision/# {
+    fetch rewrite url replacing #/revision/latest/.+?\?# with '/revision/latest/?'
+};
+
+or 
+@label [id=2, label="All site images page", urlregex=#[/=]Special:MIMESearch#] 
+goto 'a.internal' fetch a_href nextpage location 'a.mw-nextlink' followNextPagesOfNextPages; 
+
+or 
+@label [id=3, label="All site images page", urlregex=#[/=]Special:ListFiles#] 
+goto '.TablePager_col_img_name' fetch a_href not matching #/wiki/File:# nextpage location '.TablePager-button-next' followNextPagesOfNextPages;

@@ -1,0 +1,3 @@
+fetch rewrite url #/(\w+$)# as 'https://archive.vine.co/posts/'$1'.json' indirectly {
+    fetch jsonlinks at ($data -> videoUrl)
+} keepLinksReferralHistory;

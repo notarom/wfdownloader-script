@@ -1,0 +1,3 @@
+goto [absolute 2:<form>] submit htmlform {
+    goto [absolute all:<script>] fetch first 1 textlinks in pattern #src:\s*'http.*?',#
+} keepLinksReferralHistory;

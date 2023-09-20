@@ -1,0 +1,4 @@
+@onlyMatchingUrlsAllowed
+@label [id=1, label="Images Page", urlregex=#/images/(search|async)\?#] 
+fetch all textlinks in pattern #&quot;murl&quot;:&quot;(?<val>http.+?)(?<!\\)&quot;# 
+also goto [absolute 1:<div data-iid=#images#>] fetch .attribute_data-nexturl programmatically;

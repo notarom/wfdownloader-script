@@ -1,0 +1,1 @@
+goto 'script' fetch all textlinks in pattern #sources:\s*\[.+?\]# only links matching #/v.mp4# keepLinksReferralHistory;

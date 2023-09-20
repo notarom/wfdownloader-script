@@ -1,0 +1,9 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="picture view page", urlregex=#/posts/\d+#]
+goto 'a[download], #image-download-link a, a#highres' fetch .attribute_href 
+else goto [abs 1:<li $text=#(?i)Size:#> -> 1:<a>] fetch .attribute_href;
+
+or 
+@label [id=2, label="gallery/search page/Pools", urlregex=#/(posts|index)?\?tags=|/pools/\d+|/pool/show/\d+#]
+goto 'article[id] a, span.thumb a' fetch all .attribute_href indirectly, only links matching #/post#, 
+customsubfolder pagetitle nextpage location '.paginator, #paginator' followNextPagesOfNextPages {via label 1} keepLinksReferralHistory;

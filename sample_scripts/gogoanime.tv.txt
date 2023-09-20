@@ -1,0 +1,32 @@
+@directive[  
+    @id: 'gogoanime.tv'  
+    @site: https://gogoanime.tv/  
+    @params: {     
+        Quality('Any'|'480p'|'360p'|'720p'|'1080p')  
+    }  
+    @runtimefilters: {    
+        Episodes: #-episode-(\d+)#  
+    }
+] 
+@label [id=1, label="anime view page", urlregex=#\.\w+/category/[\w._-]+#] 
+make api call to "http://ajax.gogocdn.net/ajax/load-list-episode" 
+with parameters["ep_start" = "0", "ep_end" = "5000", "id"= $htmlval:'input#movie_id' .attribute_value] via GET 
+with values ['domain' = $urlval: #(?<val>https?://[^/]+)# ] customsubfolder pagetitle {
+    fetch all indirectly running 2 concurrently apply 'Episodes' runtimefilter {
+        fetch rewrite url #//[^/]+(?<val>/.+)# as %{domain}$1 indirectly {
+            via label 2
+        }
+    }
+};
+or 
+@label [id=2, label="anime episode page", urlregex=#animes?\.\w+/[\w._-]+$#] 
+on(Quality='Any') 
+    goto '.anime_muti_link' fetch 1 yielding a_data-video programmatically with ['Quality'='Any'] max 1 each customname pagetitle workout extension 
+else on(Quality='480p') 
+    goto '.anime_muti_link' fetch 1 yielding a_data-video programmatically with ['Quality'='480p'] max 1 each customname pagetitle workout extension 
+else on(Quality='720p') 
+    goto '.anime_muti_link' fetch 1 yielding a_data-video programmatically with ['Quality'='720p'] max 1 each customname pagetitle workout extension 
+else on(Quality='1080p') 
+    goto '.anime_muti_link' fetch 1 yielding a_data-video programmatically with ['Quality'='1080p'] max 1 each customname pagetitle workout extension 
+else on(Quality='360p') 
+    goto '.anime_muti_link' fetch 1 yielding a_data-video programmatically with ['Quality'='360p'] max 1 each customname pagetitle workout extension;

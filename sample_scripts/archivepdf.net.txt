@@ -1,0 +1,10 @@
+@onlyMatchingUrlsAllowed 
+@label[id=1, label='gallery page', urlregex=#\.net/[^/]+$#] 
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '3', 
+    'templateUrl' = 'https://www.archivepdf.net/pro-gallery-webapp/v1/galleries/{{galleryId}}?offset=[0-10000]&limit=25&state=PUBLISHED&lang=', 
+    'increment' = '25',
+    'galleryId' = '$htmlval:#"galleryId":"(?<val>[^"]+)"#', 
+    'header.Authorization' = '$htmlval:#"instance":"(?<val>[^"]+)"#',
+    'targetVals' = '$jsonval: $data->gallery->items[]->mediaUrl' 
+] customname e'{{#num}}_{{#filename}}' customsubfolder pagetitle;

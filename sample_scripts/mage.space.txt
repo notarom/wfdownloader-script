@@ -1,0 +1,7 @@
+@onlyMatchingUrlsAllowed 
+@label[id=1, label='work page', urlregex=#/u/#] 
+fetch via customhandler 'infinite_scroll' with [
+    'templateUrl' = 'https://api.mage.space/api/v1/users/{{user}}/creations?page=[0-1000]&limit=300',
+    'user' = '$urlval:#/u/(?<val>[\w_.-]+)#',
+    'targetVals' = '$jsonval: $data->results[]->image_url' 
+] customsubfolder $urlval:#/u/(?<val>[\w_.-]+)#;

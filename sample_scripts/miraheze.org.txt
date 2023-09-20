@@ -1,0 +1,11 @@
+@label [id=1, label="Category page", urlregex=#/Category:#] 
+fetch all a_href indirectly, only links matching #File:# {via label 2}; 
+or 
+@label [id=2, label="File page page", urlregex=#/File:#] 
+goto '.fullMedia' fetch first 1 a_href;  
+or 
+@label [id=3, label="All site images page", urlregex=#[/=]Special:MIMESearch#] 
+goto 'a.internal' fetch a_href nextpage location 'a.mw-nextlink' followNextPagesOfNextPages; 
+or 
+@label [id=4, label="All site images page", urlregex=#[/=]Special:ListFiles#] 
+goto '.TablePager_col_img_name' fetch a_href not matching #/wiki/File:#, nextpage location '.TablePager-button-next' followNextPagesOfNextPages;

@@ -1,0 +1,5 @@
+@label [id=1, label="anime view page", urlregex=#/anime/view/#] 
+goto '#filelist' fetch all indirectly {via label 2};  
+or 
+@label [id=2, label="anime download page", urlregex=#/download/.*?\.html#] 
+goto '.box' fetch all a_href keepLinksReferralHistory;

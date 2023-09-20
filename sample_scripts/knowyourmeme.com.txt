@@ -1,0 +1,38 @@
+@directive[  
+    @id: 'knowyourmeme.com'  
+    @site: https://knowyourmeme.com/  
+    @pagination: {     
+        mode: allPages editable     
+        filterRegex: #(\?page=|/page/)(?<val>\d+)#  
+    }
+]
+@onlyMatchingUrlsAllowed 
+
+@label [id=7, label='search page', urlregex=#/search\?#] 
+goto '.list a.photo' fetch .attribute_href programmatically nextpage location '.pagination'; 
+
+or 
+@label [id=6, label='meme main page with category in url', urlregex=~//[^/]+/memes/[^/]+/(?!(photos|videos|children)$)[^/#\?]+$~] 
+fetch rewrite url #.+# as $0'/photos' programmatically 
+also fetch rewrite url #.+# as $0'/videos' programmatically;  
+
+or 
+@label [id=5, label='meme main page', urlregex=~//[^/]+/memes/[^/#\?]+$~] 
+fetch rewrite url #.+# as $0'/photos' programmatically 
+also fetch rewrite url #.+# as $0'/videos' programmatically;  
+
+or 
+@label [id=4, label='meme all videos page', urlregex=#/memes/[^/]+(/[^/]+)?/videos#] 
+goto 'a.video' fetch all .attribute_href indirectly, nextpage location '.pagination' followNextPagesOfNextPages, customsubfolder $htmlval:'h1' .textval {via label 2}; 
+
+or 
+@label [id=3, label='meme all photos page', urlregex=#/memes/[^/]+(/[^/]+)?/photos#] 
+goto '.item' fetch all a_href indirectly, nextpage location '.pagination' followNextPagesOfNextPages, customsubfolder $htmlval:'h1' .textval {via label 1}; 
+
+or 
+@label [id=2, label='video page', urlregex=#knowyourmeme\.\w+/videos/\d+-#] 
+goto '#video_embed' fetch iframe_src programmatically; 
+
+or 
+@label [id=1, label='photo page', urlregex=#knowyourmeme\.\w+/photos/\d+-#] 
+goto '#photo_wrapper' fetch all a_href customname $htmlval: 'h1#media-title' .textval workout extension;

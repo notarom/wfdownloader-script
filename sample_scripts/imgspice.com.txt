@@ -1,0 +1,1 @@
+goto 'img#imgpreview' fetch .attribute_src;

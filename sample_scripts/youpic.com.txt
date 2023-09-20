@@ -1,0 +1,41 @@
+@onlyMatchingUrlsAllowed
+@label [id=1, label="User,Photoshoot,Search Page", urlregex=#(/photographer|://[^/]+?)/[^/]+/($|\?mode=latest)#]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '5',
+    'templateUrl' = 'https://api3.youpic.com/user/{{userId}}/newest?count=28&cursor={{cursorPos}}&direction=from&context_id=0',
+    'userId' = '$htmlval: #"User":\{"(?<val>\d+)":#',
+    'cursorPos' = '',
+    'next.cursorPos' = '$jsonval: $data->cursor',
+    'targetVals' = '$jsonval:$data->resource->Image[]',
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.title' = '$jsonval:$data->title',
+    'object.cdn' = '$jsonval:$data->url->url',
+    'object.file' = '$jsonval:$data->url->file',
+    'object.url' = '$jsonval:$data->url->file',
+    'object.rewriteUrl' = '{{cdn}}/huge/{{placeholder}}',
+    'object.customName' = '{{id}} {{title}}.png'
+] customsubfolder $urlval: #/photographer/(?<val>.+)# ;
+ or
+@label [id=2, label="Inspiration Page", urlregex=#\?mode=inspirations#]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '5',
+    'templateUrl' = 'https://api3.youpic.com/user/{{userId}}/inspirations?count=28&cursor={{cursorPos}}&direction=from&context_id=0',
+    'userId' = '$htmlval: #"User":\{"(?<val>\d+)":#',
+    'cursorPos' = '',
+    'next.cursorPos' = '$jsonval: $data->cursor',
+    'header.Accept' = '20170804',     'targetVals' = '$jsonval:$data->resource->Image[]',
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.title' = '$jsonval:$data->title',
+    'object.cdn' = '$jsonval:$data->url->url',
+    'object.file' = '$jsonval:$data->url->file',
+    'object.url' = '$jsonval:$data->url->file',
+    'object.rewriteUrl' = '{{cdn}}/huge/{{placeholder}}',
+    'object.customName' = '{{id}} {{title}}.png'
+] customsubfolder $urlval: #/photographer/(?<val>.+)# ;
+ or
+@label [id=3, label="Photo Page", urlregex=#/image/#]
+goto '.Browser-Image-Content' fetch first 1 img_src indirectly, customname pagetitle file extension from url {
+    fetch rewrite url #(.+?)/large/(.+)# as $1'/huge/'$2
+};

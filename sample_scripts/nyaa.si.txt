@@ -1,0 +1,1 @@
+wait 5 seconds fetch all a_href matching #.torrent$# nextpage location '.pagination' followNextPagesOfNextPages;

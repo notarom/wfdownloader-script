@@ -1,0 +1,20 @@
+@directive[  
+    @id: 'rapidvideo.com'  
+    @site: https://www.rapidvideo.com/ 
+    @params: {    
+        Quality('360p'|'480p'|'720p'|'1080p'|'Any'|'All')  
+    }
+]
+@label[id=1, label='Video watch', urlregex=~/(e|embed)/\w+(/|#)?$~] 
+open page using connection 1 on (Quality='All') goto 'video' fetch all source_src 
+else on (Quality='360p') goto 'video source[label="360p"]' fetch all .attribute_src 
+else on (Quality='480p') goto 'video source[label="480p"]' fetch all .attribute_src 
+else on (Quality='720p') goto 'video source[label="720p"]' fetch all .attribute_src 
+else on (Quality='1080p') goto 'video source[label="1080p"]' fetch all .attribute_src 
+else on (Quality='Any') goto 'video' fetch first 1 source_src keepLinksReferralHistory;
+
+@connections[
+    @id:1(     
+        @headerField: "Referer"= "https://www.rapidvid.to/"
+    )
+]
