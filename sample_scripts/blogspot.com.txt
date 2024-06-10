@@ -1,0 +1,25 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="Blogspot Home", urlregex=~//[^/]+($|#|\?|/(\W|$))~] 
+goto '.post-body, .post-title' fetch all a_href indirectly, only links matching #\.html$#, 
+nextpage location '.blog-pager-older-link' filter in #/search\?(.(?!&reverse-paginate=))+$# followNextPagesOfNextPages {via label 5};  
+
+or 
+@label [id=2, label="Search", urlregex=#/search(/label|\?)#] 
+goto '.post-body' fetch all a_href only links matching #(?i)(\.(jpg|jpeg|png|gif|bmp|webp)$|://blogger.googleusercontent.com/)#, customsubfolder pagetitle, 
+nextpage location '.blog-pager-older-link' filter in #/search\?(.(?!&reverse-paginate=))+$# followNextPagesOfNextPages 
+else goto '.post-body, .post-title' fetch all a_href indirectly only links matching #\.html$#, 
+nextpage location '.blog-pager-older-link' filter in #/search\?(.(?!&reverse-paginate=))+$# followNextPagesOfNextPages {via label 5};  
+
+or 
+@label [id=3, label="Year posts", urlregex=#\.\w+/\d{4}/(\W|$)#] 
+goto '.post-body' fetch all a_href only links matching #(?i)(\.(jpg|jpeg|png|gif|bmp|webp)$|://blogger.googleusercontent.com/)#, customsubfolder $htmlval: '.post-title' .textval, 
+nextpage location '.blog-pager-older-link' filter in #/search\?(.(?!&reverse-paginate=))+$# followNextPagesOfNextPages;  
+
+or 
+@label [id=4, label="Month posts", urlregex=#\.\w+/\d{4}/\d{2}/(\W|$)#] 
+goto '.post-body' fetch all a_href only links matching #(?i)(\.(jpg|jpeg|png|gif|bmp|webp)$|://blogger.googleusercontent.com/)#, customsubfolder $htmlval: '.post-title' .textval, 
+nextpage location '.blog-pager-older-link' filter in #/search\?(.(?!&reverse-paginate=))+$# followNextPagesOfNextPages;  
+
+or 
+@label [id=5, label="Blog post", urlregex=#\.\w+/(p|\d{4}/\d{2})/[^/]+\.html#] 
+goto '.post-body' fetch all a_href only links matching #(?i)(\.(jpg|jpeg|png|gif|bmp|webp)$|://blogger.googleusercontent.com/)#, customsubfolder $htmlval: '.post-title' .textval; 

@@ -1,0 +1,15 @@
+@directive[ 
+    @id: 'wallpaperjam.com'  
+    @site: https://wallpaperjam.com/ 
+    @pagination: { 
+        mode: allPages editable 
+        filterRegex: #page=(\d+)#  
+    }
+]
+@label [id=1, label="Search Page", urlregex=#/search\?#] 
+goto 'a.thumbnail' fetch all .attribute_href indirectly nextpage location '.pagination' followNextPagesOfNextPages {via label 2};  
+or 
+@label [id=2, label="Wallpaper Page", urlregex=#/wallpaper/#] 
+fetch rewrite url #/wallpaper/(.+)# as 'https://wallpaperjam.com/view/'$1 indirectly {via label 3};  
+or 
+@label [id=3, label="Download page", urlregex=#/view/#] goto '.view-image-container' fetch all img_src;

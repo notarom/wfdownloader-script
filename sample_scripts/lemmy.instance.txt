@@ -1,0 +1,63 @@
+@onlyMatchingUrlsAllowed
+@label[id=1, label='Home page', urlregex=#://[^/]+/?$#]
+fetch rewrite url ~(.+?)/?(\?|$)~ as $1'/?dataType=Post&Sort=Active' indirectly {via label 3};
+or
+@label[id=2, label='Community page without query string', urlregex=#(/c/)(.(?!dataType=|search\?q=|/u/))+$#]
+fetch rewrite url ~(.+?)/?(\?|$)~ as $1'?dataType=Post&Sort=Active' indirectly {via label 3};
+or
+@label[id=3, label='Community page with query string', urlregex=#(/c/|://[^/]+).+?dataType=#]
+wait 3 seconds, from pattern #"postsRes":(?<val>\{.+?\})\},"errorPageData"# 
+fetch jsonlinks at ($data->data->posts[]->post) as objects [
+    'url' = $jsonval:$data->url ,
+    'postId' = $jsonval: $data->id ,
+    'title' = $jsonval: $data->name ,
+    'customName' = e'{{postId}} - {{title}}'
+] using connection 1 customsubfolder $urlval:~://(?<value>[^/]+)(/(?!c/)|\?)|/c/(?<val>.+?)(\?|#|$)~, nextpage via customhandler 'regex' with [
+    'preCursorPart' = '$urlval:~(?<val>.+?)(&pageCursor|#|$)~',
+    'postCursorPart' = '$urlval:~&pageCursor=\w+(?<val>\W.+)~ or ""',
+    'nextPageLocation' = '"next_page":"(?<val>.+?)"',
+    'rewriteUrls' = '{{preCursorPart}}&pageCursor={{placeholder}}{{postCursorPart}}'
+] followNextPagesOfNextPages keepLinksReferralHistory;
+or
+@label[id=4, label='search page', urlregex=#/search\?q=#]
+wait 3 seconds, from pattern #"searchResponse":(?<val>\{.+?\})\},"errorPageData"# 
+fetch jsonlinks at ($data->data->posts[]->post) as objects [
+    'url' = $jsonval:$data->url ,
+    'postId' = $jsonval: $data->id ,
+    'title' = $jsonval: $data->name ,
+    'customName' = e'{{postId}} - {{title}}'
+] using connection 1 customsubfolder $urlval:~.search\?q=(?<val>.+?)&~ urlDecodeValue, nextpage via customhandler 'range' with [
+    'prePagePart' = '$urlval:~(?<val>.+?)(&page=|#|$)~',
+    'postPagePart' = '$urlval:~&page=\d+(?<val>\W.+)~ or ""',
+    'templateNextPagesUrl' = '{{prePagePart}}&page=[1-1000]{{postPagePart}}'
+] followNextPagesOfNextPages stopWhenNoLinksFound keepLinksReferralHistory;
+or
+@label[id=5, label='user page', urlregex=#/u/#]
+wait 3 seconds, from pattern #"personResponse":(?<val>\{.+?\})\},"errorPageData"# 
+fetch jsonlinks at ($data->data->posts[]->post) as objects [
+    'url' = $jsonval:$data->url ,
+    'postId' = $jsonval: $data->id ,
+    'title' = $jsonval: $data->name ,
+    'customName' = e'{{postId}} - {{title}}'
+] using connection 1 customsubfolder $urlval:~/u/(?<val>[^/\?#]+)~ urlDecodeValue, nextpage via customhandler 'range' with [
+    'preQueryPart' = '$urlval:~(?<val>.+?)(\?|#|$)~',
+    'prePagePart' = '$urlval:~(?<val>\?.*?)page=~ or "?"',
+    'postPagePart' = '$urlval:~page=\d+(?<val>\W.+)~ or ""',
+    'templateNextPagesUrl' = '{{preQueryPart}}{{prePagePart}}page=[2-1000]{{postPagePart}}'
+] followNextPagesOfNextPages stopWhenNoLinksFound keepLinksReferralHistory;
+or
+@label[id=6, label='Post page', urlregex=#/post/#]
+using values 1 goto 'h1 > a' fetch .attribute_href customname e'{{postId}} - {{title}}' workout extension;
+
+@values[
+@id:1 (
+    'title' = pagetitle,
+    'postId' = $urlval: #/post/(?<val>\d+)#
+)
+]
+
+@connections[
+@id:1 (
+    @headerField: 'Accept' = 'image/webp,image/apng,image/*,*/*;q=0.8'
+)
+]

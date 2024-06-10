@@ -1,0 +1,5 @@
+@label [id=1, label="Category/Search Page", urlregex=#/(cat/|search\?)#] 
+goto '#collections_segment' fetch all indirectly nextpage location '.pagination' {via label 2};  
+or 
+@label [id=2, label="Collection Page", urlregex=#/collection/#] 
+goto 'a[data-download]' fetch all .attribute_href; 

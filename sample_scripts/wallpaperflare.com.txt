@@ -1,0 +1,16 @@
+@directive[  
+    @id: 'wallpaperflare.com' 
+    @site: https://www.wallpaperflare.com/ 
+    @pagination: { 
+        mode: allPages editable 
+        filterRegex: #&page=(\d+)# 
+    }
+] 
+@label [id=1, label="Search Page", urlregex=#/search\?#] 
+goto 'figure > a' fetch all a_href indirectly, customsubfolder $urlval: #\?wallpaper=(?<val>.+?)($|&)#, nextpage location '.prevnext' followNextPagesOfNextPages {via label 2};
+or 
+@label [id=2, label="Wallpaoer Page", urlregex=#://[^/]+/[^/?]+$#] 
+goto 'a.link_btn' fetch a_href indirectly matching #/download$# {via label 3};  
+or 
+@label [id=3, label="Download Page", urlregex=#/download#] 
+goto '#show_img' fetch img_src customname $urlval:#/(?<val>[^/]+)/download# workout extension; 

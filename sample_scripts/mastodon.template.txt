@@ -1,0 +1,159 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="user page", urlregex=#/@[^/@]+/?$#] 
+using values 1 fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '3',
+    'templateUrl' = '{{domain}}/api/v1/accounts/{{userId}}/statuses?exclude_replies=true&max_id={{maxId}}',
+    'domain' = '$urlval:#(?<val>https?://[^/]+)/.+#',
+    'userId' = '$storedval: $userId',
+    'maxId' = '',
+    'next.maxId' = '$jsonval: $data[last]->id',
+    'targetVals' = '$jsonval:$data[]', 
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.user' = '$jsonval:$data->account->acct',
+    'object.created_at' = '$jsonval:$data->created_at',
+    'object.url' = '$jsonval:$data->media_attachments[]->url',
+    'object.customName' = '{{user}} [{{created_at}}] {{id}} {{#internal.num}}',
+    'object.customNameModifierFlags' = 'colonRequired',
+    'object.workoutExtension' = 'true',
+    'onlyStopIfCheckFails' = '$jsonval:$data[]->id' 
+] customsubfolder e'{{username}}'; 
+
+or 
+@label [id=2, label="user with replies page", urlregex=#/@[^/@]+/with_replies#] 
+using values 1 fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '3',
+    'templateUrl' = '{{domain}}/api/v1/accounts/{{userId}}/statuses?exclude_replies=false&max_id={{maxId}}', 
+    'domain' = '$urlval:#(?<val>https?://[^/]+)/.+#', 
+    'userId' = '$storedval: $userId',
+    'maxId' = '', 
+    'next.maxId' = '$jsonval: $data[last]->id',
+    'targetVals' = '$jsonval:$data[]', 
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.user' = '$jsonval:$data->account->acct',
+    'object.created_at' = '$jsonval:$data->created_at',
+    'object.url' = '$jsonval:$data->media_attachments[]->url', 
+    'object.customName' = '{{user}} [{{created_at}}] {{id}} {{#internal.num}}', 
+    'object.customNameModifierFlags' = 'colonRequired', 
+    'object.workoutExtension' = 'true', 
+    'onlyStopIfCheckFails' = '$jsonval:$data[]->id' 
+] customsubfolder e'{{username}}_with_replies'; 
+
+or 
+@label [id=3, label="user with replies page", urlregex=#/@[^/@]+/media#] 
+using values 1 fetch via customhandler 'infinite_scroll' with [ 
+    'crawlDelay' = '3',
+    'templateUrl' = '{{domain}}/api/v1/accounts/{{userId}}/statuses?max_id={{maxId}}&only_media=true&limit=40', 
+    'domain' = '$urlval:#(?<val>https?://[^/]+)/.+#', 
+    'userId' = '$storedval: $userId', 
+    'maxId' = '', 
+    'next.maxId' = '$jsonval: $data[last]->id',
+    'targetVals' = '$jsonval:$data[]', 
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.user' = '$jsonval:$data->account->acct',
+    'object.created_at' = '$jsonval:$data->created_at',
+    'object.url' = '$jsonval:$data->media_attachments[]->url', 
+    'object.customName' = '{{user}} [{{created_at}}] {{id}} {{#internal.num}}', 
+    'object.customNameModifierFlags' = 'colonRequired', 
+    'object.workoutExtension' = 'true', 
+    'onlyStopIfCheckFails' = '$jsonval:$data[]->id' 
+] customsubfolder e'{{username}}_media'; 
+
+or 
+@label [id=4, label="tags page", urlregex=#/tags/#] 
+fetch via customhandler 'infinite_scroll' with [ 
+    'crawlDelay' = '3',
+    'templateUrl' = '{{domain}}/api/v1/timelines/tag/{{tag}}?max_id={{maxId}}', 
+    'domain' = '$urlval:#(?<val>https?://[^/]+)/.+#', 
+    'tag' = '$urlval:~/tags/(?<val>.+?)(/|\?|#|$)~', 
+    'maxId' = '', 
+    'next.maxId' = '$jsonval: $data[last]->id',
+    'targetVals' = '$jsonval:$data[]', 
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.user' = '$jsonval:$data->account->acct',
+    'object.created_at' = '$jsonval:$data->created_at',
+    'object.url' = '$jsonval:$data->media_attachments[]->url', 
+    'object.customName' = '{{user}} [{{created_at}}] {{id}} {{#internal.num}}', 
+    'object.customNameModifierFlags' = 'colonRequired', 
+    'object.workoutExtension' = 'true', 
+    'onlyStopIfCheckFails' = '$jsonval:$data[]->id' 
+] customsubfolder $urlval: #/tags/(?<val>.+)#; 
+
+or 
+@label [id=5, label="favourites page", urlregex=#://[^/]+/favourites#] 
+fetch via customhandler 'infinite_scroll' with [ 
+    'login.check' = '"access_token":"(?<val>[^"]+)"',
+    'login.errorMessage' = 'Login is required for this page. Please import cookies from your browser',
+    'crawlDelay' = '3',
+    'templateUrl' = '{{domain}}/api/v1/favourites?max_id={{maxId}}', 
+    'domain' = '$urlval:#(?<val>https?://[^/]+)/.+#', 
+    'accessToken' = '$htmlval:#"access_token":"(?<val>[^"]+)"#', 
+    'apiUrl' = '$urlval:#(?<val>.+)#', 
+    'next.apiUrl' = '$urlval:#(?<val>.+)#', 
+    'maxId' = '', 
+    'next.maxId' = '$fnval:getMastodonNextMaxIdFromUrl(apiUrl, accessToken)',
+    'header.Authorization' = '$htmlval:#"access_token":"(?<val>[^"]+)"#', 
+    'authorization.type' = 'Bearer', 
+    'targetVals' = '$jsonval:$data[]', 
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.user' = '$jsonval:$data->account->acct',
+    'object.created_at' = '$jsonval:$data->created_at',
+    'object.url' = '$jsonval:$data->media_attachments[]->url', 
+    'object.customName' = '{{user}} [{{created_at}}] {{id}} {{#internal.num}}', 
+    'object.customNameModifierFlags' = 'colonRequired', 
+    'object.workoutExtension' = 'true' 
+] customsubfolder 'My Mastodon Favourites'; 
+
+or 
+@label [id=6, label="bookmarks page", urlregex=#://[^/]+/bookmarks#] 
+fetch via customhandler 'infinite_scroll' with [     'login.check' = '"access_token":"(?<val>[^"]+)"',
+    'login.errorMessage' = 'Login is required for this page. Please import cookies from your browser',
+    'crawlDelay' = '3',
+    'templateUrl' = '{{domain}}/api/v1/bookmarks?max_id={{maxId}}', 
+    'domain' = '$urlval:#(?<val>https?://[^/]+)/.+#', 
+    'accessToken' = '$htmlval:#"access_token":"(?<val>[^"]+)"#', 
+    'apiUrl' = '$urlval:#(?<val>.+)#', 
+    'next.apiUrl' = '$urlval:#(?<val>.+)#', 
+    'maxId' = '', 
+    'next.maxId' = '$fnval:getMastodonNextMaxIdFromUrl(apiUrl, accessToken)',
+    'header.Authorization' = '$htmlval:#"access_token":"(?<val>[^"]+)"#', 
+    'authorization.type' = 'Bearer', 
+    'targetVals' = '$jsonval:$data[]', 
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval:$data->id',
+    'object.user' = '$jsonval:$data->account->acct',
+    'object.created_at' = '$jsonval:$data->created_at',
+    'object.url' = '$jsonval:$data->media_attachments[]->url', 
+    'object.customName' = '{{user}} [{{created_at}}] {{id}} {{#internal.num}}', 
+    'object.customNameModifierFlags' = 'colonRequired', 
+    'object.workoutExtension' = 'true' 
+] customsubfolder 'My Mastodon Bookmarks'; 
+
+or 
+@label [id=7, label="status page", urlregex=#/@[^/]+/\d+#] 
+fetch rewrite url replacing #/@[^/]+/# with '/api/v1/statuses/' indirectly {
+    fetch jsonlinks at ($data) as objects [
+        'id' = $jsonval:$data->id ,
+        'user' = $jsonval:$data->account->acct ,
+        'created_at' = $jsonval:$data->created_at ,
+        'url' = $jsonval:$data->media_attachments[]->url ,
+        'customName' = e'{{user}} [{{created_at}}] {{id}} {{#internal.num}}',
+        'customNameModifierFlags' = 'colonRequired'
+     ]}; 
+
+or 
+@label [id=8, label="external page", urlregex=#/@.+?@.+?\.\w+#] 
+fetch rewrite url #/(@[^/@]+)@([^.]+\.\w+)(.*)# as 'https://'$2'/'$1$3 programmatically;
+
+@values[
+@id:1(
+    'url' = $urlval:#(?<val>.+)#,
+    'domain' = $urlval:#(?<val>https?://[^/]+)/.+#, 
+    'username' = $urlval:~(?<val>@[^/?#]+)~, 
+    'userId' = $fnval:getMastodonUserIdFromUrl(url) 
+)
+]

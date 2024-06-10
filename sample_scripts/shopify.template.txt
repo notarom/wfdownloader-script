@@ -1,0 +1,49 @@
+@directive[
+    @id: 'shopify.template'
+    @site: 'https://www.shopify.com/'
+    @params: {
+        Fetch_Mode('Media'|'Metadata')
+    }
+]
+@onlyMatchingUrlsAllowed
+@label[id=2, label='collections page', urlregex=#/collections/(.(?!/products/|\.json$))+$#]
+on (Fetch_Mode='Media') fetch rewrite url ~(.+?)/?(\?|#|$)~ as $1'/products.json' indirectly {
+    fetch jsonlinks at ($data->products[]) as objects [
+        'url' = $jsonval: $data->images[]->src ,
+        'customFolder' = $jsonval:$data->title
+    ] nextpage via customhandler 'range' with [
+        'prePagePart' = '$urlval:#(?<val>.+/products.json)#',
+        'postPagePart' = '',
+        'templateNextPagesUrl' = '{{prePagePart}}?page=[2-10000]{{postPagePart}}'
+    ] stopWhenNoLinksFound
+} 
+else on (Fetch_Mode='Metadata') fetch rewrite url ~(.+?)/?(\?|#|$)~ as $1'/products.json' indirectly {
+    fetch jsonlinks at ($data->products[]) as objects [
+        'slug' = $jsonval: $data->handle ,
+        '#pivot' = 'slug' ,
+        'url' = e'products/{{slug}}' ,
+        '_json' = 1:#(?<val>.+)# ,
+        'saveProperties' = '_json' ,
+        'dataMode' = 'true' ,
+        'customFolder' = $jsonval:$data->title
+    ] nextpage via customhandler 'range' with [
+        'prePagePart' = '$urlval:#(?<val>.+/products.json)#',
+        'postPagePart' = '',
+        'templateNextPagesUrl' = '{{prePagePart}}?page=[2-10000]{{postPagePart}}'
+    ] stopWhenNoLinksFound
+};
+
+or
+@label[id=1, label='products page', urlregex=#/products/(.(?!.json$))+#]
+on (Fetch_Mode='Media') fetch rewrite url ~(.+?)/?(\?|#|$)~ as $1'.json' indirectly {
+    fetch jsonlinks at ($data->product->images[]->src) customsubfolder $jsonval:$data->product->title
+}
+else on (Fetch_Mode='Metadata') fetch rewrite url ~(.+?)/?(\?|#|$)~ as $1'.json' indirectly {
+    fetch jsonlinks at ($data->product) as objects [
+        'url' = $jsonval: $data->handle ,
+        '_json' = 1:#(?<val>.+)# ,
+        'saveProperties' = '_json' ,
+        'dataMode' = 'true' ,
+        'customFolder' = $jsonval:$data->title
+    ]
+};

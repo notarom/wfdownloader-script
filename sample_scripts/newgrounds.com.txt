@@ -1,0 +1,41 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="user page", urlregex=#://(?!www\.newgr)[^/]+/?$#] 
+fetch rewrite url #(.+?)/?$# as $1'/art/' indirectly {via label 2} 
+also fetch rewrite url #(.+?)/?$# as $1'/movies/' indirectly {via label 3};  
+
+or 
+@label [id=2, label='user art page', urlregex=#://[^/]+/art/?$#] 
+fetch unfixed via customhandler 'infinite_scroll' with [
+    'templateUrl' = '{{pageUrl}}?isAjaxRequest=1&page=[1-10000]', 
+    'pageUrl' = '$urlval:#(?<val>.+?/art/?)#', 
+    'targetVals' = 'href=\\"(?<val>[^"]+?/art\\/view[^"]+)\\"' 
+] indirectly {
+    fetch rewrite url replacing '\/' with '/' indirectly {via label 4}
+};  
+
+or @label [id=3, label='user movie page', urlregex=#://[^/]+/movies/?$#] 
+fetch unfixed via customhandler 'infinite_scroll' with [
+    'templateUrl' = '{{pageUrl}}?isAjaxRequest=1&page=[1-10000]', 
+    'pageUrl' = '$urlval:#(?<val>.+?/movies/?)#',
+    'targetVals' = 'href=\\"(?<val>[^"]+?/portal\\/view[^"]+)\\"' 
+] indirectly {
+    fetch rewrite url replacing '\/' with '/' indirectly {via label 5}
+};  
+
+or 
+@label [id=4, label='art view', urlregex=#/art/view/#] 
+goto '.image' fetch a_href customsubfolder $urlval: #/art/view/(?<val>.+?)/#;  
+
+or 
+@label [id=5, label='video view', urlregex=#/portal/view/#] 
+make api call to 'https://www.newgrounds.com/portal/video/{{vid}}' via GET with url substitutions ['vid' = $urlval:#/view/(?<val>\d+)#] using connection 1 {
+    fetch first 1 jsonlinks at ($data-> sources -> abs src) 
+};
+
+@connections[
+@id: 1 (
+    @headerField: 'Accept' = 'application/json, text/javascript, */*; q=0.01' 
+    @headerField: 'Referer' = $urlval:#(?<val>.+)# 
+    @headerField: 'X-Requested-With'= 'XMLHttpRequest' 
+)
+]

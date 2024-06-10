@@ -1,0 +1,10 @@
+@onlyMatchingUrlsAllowed 
+@label[id=1, label='gallery page', urlregex=#://[^/]+/[^/]+$#] 
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '3', 
+    'increment' = '25',
+    'templateUrl' = '{{domain}}/pro-gallery-webapp/v1/galleries/{{galleryId}}?offset=[0-10000]&limit=25&state=PUBLISHED&lang=',
+    'domain' = '$urlval:#(?<val>https?://[^/]+)/.+#', 'galleryId' = '$htmlval:#"galleryId":"(?<val>[^"]+)"#', 
+    'header.Authorization' = '$htmlval:#"instance":"(?<val>[^"]+)"#', 
+    'targetVals' = '$jsonval: $data->gallery->items[]->mediaUrl' 
+] customname e'{{#num}}_{{#filename}}' customsubfolder pagetitle;

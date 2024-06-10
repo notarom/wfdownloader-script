@@ -1,0 +1,14 @@
+@directive[
+    @id: 'wallhaven.cc'
+    @site: http://wallhaven.cc/
+    @pagination: {
+        mode: allPages editable
+        filterRegex: #page=(\d+)#
+    }
+]
+@onlyMatchingUrlsAllowed
+@label [id=1, label="Search/Uploads/Tag Page", urlregex=#/(search\?|uploads|tag/)#] 
+goto 'a.preview' fetch .attribute_href indirectly, running 1 concurrently wait 3 seconds, nextpage location '.pagination a' followNextPagesOfNextPages {via label 2};  
+or 
+@label [id=2, label="Wallpaper Page", urlregex=#/w/#] 
+goto 'img#wallpaper' fetch .attribute_src;

@@ -1,0 +1,39 @@
+@onlyMatchingUrlsAllowed
+@label[id=6, label='user main page', urlregex=#u/[^/]+/?$#]
+fetch rewrite url #(.+?/u)/([^/?]+)# as $1'/'$2'/posts' indirectly {via label 5};
+or
+@label[id=5, label='user posts page', urlregex=#/u/[^/]+/posts#]
+fetch via customhandler 'infinite_scroll' with 
+[
+    'templateUrl' = 'https://api.tensor.art/community-web/v1/post/list',
+    'templatePostData' = '{"cursor":"{{cursorPos}}","filter":{},"size":"20","userId":"{{userId}}","sort":"NEWEST"}',
+    'cursorPos' = '0',
+    'userId' = '$urlval: ~/u/(?<val>[^/]+)/~',
+    'next.cursorPos' = '$jsonval: $data->data->cursor',
+    'targetVals' = '$jsonval: $data->data->items[]',
+    'targetValsAreObjects' = 'true',
+    'object.id' = '$jsonval: $data->id', 
+    'object.url' = '$jsonval: $data->images[]->url', 
+    'object.customName' = '{{id}}_{{#internal.num}}'
+] customsubfolder $urlval: #/(?<val>u/[^/]+)/# replaceDirSlash;
+or
+@label[id=4, label='model page', urlregex=#/models/\d+#]
+fetch all hyperlinks indirectly matching #/images/# {via label 1};
+or
+@label[id=3, label='post page', urlregex=#/posts/\d+#]
+fetch all hyperlinks indirectly matching #/images/# {via label 1};
+or
+@label[id=2, label='image page', urlregex=#/images/(.(?!_id))+$#]
+goto 'section > .thumbnail-image' fetch first 1 images matching #/image/.*?w=# 
+customname $urlval: #/images/(?<val>\d+)# workout extension, customsubfolder 'TensorArt';
+or
+@label[id=1, label='image page', urlregex=#/images/.+?_id=#]
+using values 1 goto 'section > .thumbnail-image' fetch first 1 images matching #/image/.*?w=# 
+customname e'{{sourceId}}_{{imageId}}' workout extension, customsubfolder 'TensorArt';
+
+@values [
+@id:1 (
+    'imageId' = $urlval: #/images/(?<val>\d+)#,
+    'sourceId' = $urlval: #_id=(?<val>\d+)#
+)
+]

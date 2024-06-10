@@ -1,0 +1,17 @@
+@onlyMatchingUrlsAllowed 
+@label [id=1, label="picture view page (original size)", urlregex=#/attachment/#]
+goto '#display_image_detail a' fetch .attribute_href; 
+or 
+@label [id=2, label="gallery page", urlregex=#/image/(.(?!/attachment/))+(/|$|\s)#]
+fetch textlinks in pattern #(?s)"image"\s*:\s*\[.+?\]# nextpage location [abs 1:<div id="paginator">] followNextPagesOfNextPages; 
+or
+@label [id=3, label="multiple galleries page", urlregex=#/search/#]
+goto '.image-list-item-image a' fetch img_src indirectly nextpage location '.wp-pagenavi' followNextPagesOfNextPages {
+    fetch rewrite url replacing #/p=\d+x\d+/# with '/'
+};  
+or 
+@label [id=4, label="movie view page", urlregex=#/movie/#]
+goto '.section iframe' fetch first 1 .attribute_src indirectly {via label 5}; 
+or 
+@label [id=5, label="movie embed page", urlregex=#/embed/#]
+goto '#movie_detail_icon_play a' fetch first 1 .attribute_href else goto 'video#video_player' fetch first 1 .attribute_src;

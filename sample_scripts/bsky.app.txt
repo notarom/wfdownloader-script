@@ -1,0 +1,177 @@
+@directive[
+    @id: 'bsky.app'
+    @site: https://bsky.app/
+    @params: {
+        Profile_Download_Mode('Media'|'Likes'),
+        Search_Or_HashTag_Download_Mode('Latest'|'Top')
+    }
+]
+@onlyMatchingUrlsAllowed
+@label[id=1, label='post page', urlregex=#/post/\w+#]
+using values 1 goto 'link[type="application/json+oembed"]' fetch .attribute_href indirectly {
+    fetch rewrite url #&url=(.+)# as 'https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri='$1 indirectly {
+        fetch jsonlinks at($data->thread->post->embed->images[]->fullsize)
+        customname e'{{owner}} [{{date}}] {{postId}} {{#num}}' workout extension colonRequired, customsubfolder e'{{owner}}'
+    }
+}
+else using values 2 make api call to 'https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle' 
+with parameters ['handle' = $urlval:#/profile/(?<val>.+?)/#] via GET {
+    using values 3 fetch unfixed jsonlinks at($data->did) indirectly {
+        fetch rewrite url #.+# as %{bskyFeedAPI}'?uri='%{encUriVal} indirectly {
+            using values 4 fetch jsonlinks at($data->thread->post->embed->images[]->fullsize)
+            customname e'{{owner}} [{{date}}] {{postId}} {{#num}}' workout extension colonRequired, customsubfolder e'{{owner}}' 
+        }
+    }    
+};
+
+
+or
+@label[id=2, label='profile page', urlregex=~/profile/.+?#media~]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '2',
+    'templateUrl' = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor={{actor}}&filter=posts_with_media&cursor={{cursor}}&limit=30',
+    'cursor' = '',
+    'actor' = '$htmlval: #content="(?<val>did:[^"]+)"#',
+    'next.cursor' = '$jsonval: $data->cursor ',
+    'encodedValues' = 'actor,cursor',
+    'targetVals' = '$jsonval: $data->feed[]->post',
+    'targetValsAreObjects' = 'true',
+    'object.url' = '$jsonval: $data->embed->images[]->fullsize',
+    'object.owner' = '$jsonval: $data->author->handle',
+    'object.postId' = '$text:#"uri":"at://.+?.post/(?<val>\w+)"#',
+    'object.date' = '$jsonval: $data->indexedAt',
+    'object.customName' = '{{owner}} [{{date}}] {{postId}} {{#internal.num}}',
+    'object.customNameModifierFlags' = 'colonRequired'
+] customsubfolder $htmlval: 'meta[property="profile:username"]' .attribute_content;
+
+or
+@label[id=3, label='user likes page', urlregex=~/profile/.+?#likes~]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '2',
+    'templateUrl' = 'https://bsky.social/xrpc/com.atproto.repo.listRecords?repo={{userRepo}}&collection=app.bsky.feed.like&limit=20&cursor={{cursor}}',
+    'userRepo' = '$urlval:~/profile/(?<val>.+?)(/|\?|#|$)~',
+    'cursor' = '',
+    'next.cursor' = '$jsonval: $data->cursor',
+    'targetVals' = '$jsonval: $data->records[]->value->subject->uri',
+    'rewriteUrls' = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri={{placeholder}}'
+] indirectly, customsubfolder $urlval: ~/profile/(?<val>.+?)(/|\?|#|$)~ {
+    fetch jsonlinks at($data->thread->post) as objects [
+        'url' = $jsonval: $data->embed->images[]->fullsize ,
+        'owner' = $jsonval: $data->author->handle ,
+        'date' = $jsonval: $data->indexedAt ,
+        'postUrl' = $jsonval: $data->uri ,
+        'postId' = $partval: $postUrl #.post/(?<val>.+)# ,
+        'customName' =  e'{{owner}} [{{date}}] {{postId}} {{#internal.num}}',
+        'customNameModifierFlags' = 'colonRequired'
+    ] customsubfolder 'likes'
+};
+
+or
+@label[id=4, label='search top page', urlregex=~/search/?\?q.+?#top~]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '2',
+    'templateUrl' = 'https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?limit=25&cursor={{cursor}}&sort=top&q={{searchTerm}}',
+    'cursor' = '0',
+    'searchTerm' = '$urlval: #/search/?\?q=(?<val>.+)#',
+    'next.cursor' = '$jsonval: $data->cursor ',
+    'targetVals' = '$jsonval: $data->posts[]',
+    'targetValsAreObjects' = 'true',
+    'object.url' = '$jsonval: $data->embed->images[]->fullsize',
+    'object.owner' = '$jsonval: $data->author->handle',
+    'object.postId' = '$text:#"uri":"at://.+?.post/(?<val>\w+)"#',
+    'object.date' = '$jsonval: $data->indexedAt',
+    'object.customName' = '{{owner}} [{{date}}] {{postId}} {{#internal.num}}',
+    'object.customNameModifierFlags' = 'colonRequired'
+] customsubfolder $urlval:#/search/?\?q=(?<val>.+)#;
+
+or
+@label[id=5, label='search latest page', urlregex=~/search/?\?q.+?#latest~]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '2',
+    'templateUrl' = 'https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?limit=25&cursor={{cursor}}&sort=latest&q={{searchTerm}}',
+    'cursor' = '0',
+    'searchTerm' = '$urlval: #/search/?\?q=(?<val>.+)#',
+    'next.cursor' = '$jsonval: $data->cursor ',
+    'targetVals' = '$jsonval: $data->posts[]',
+    'targetValsAreObjects' = 'true',
+    'object.url' = '$jsonval: $data->embed->images[]->fullsize',
+    'object.owner' = '$jsonval: $data->author->handle',
+    'object.postId' = '$text:#"uri":"at://.+?.post/(?<val>\w+)"#',
+    'object.date' = '$jsonval: $data->indexedAt',
+    'object.customName' = '{{owner}} [{{date}}] {{postId}} {{#internal.num}}',
+    'object.customNameModifierFlags' = 'colonRequired'
+] customsubfolder $urlval:#/search/?\?q=(?<val>.+)#;
+
+or
+@label[id=6, label='hashtag top page', urlregex=~/hashtag/.+?#top~]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '2',
+    'templateUrl' = 'https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=%23{{hashTag}}&limit=25&cursor={{cursor}}&sort=top',
+    'cursor' = '0',
+    'hashTag' = '$urlval: ~/hashtag/(?<val>.+?)(/|#|\?|$)~',
+    'next.cursor' = '$jsonval: $data->cursor ',
+    'targetVals' = '$jsonval: $data->posts[]',
+    'targetValsAreObjects' = 'true',
+    'object.url' = '$jsonval: $data->embed->images[]->fullsize',
+    'object.owner' = '$jsonval: $data->author->handle',
+    'object.postId' = '$text:#"uri":"at://.+?.post/(?<val>\w+)"#',
+    'object.date' = '$jsonval: $data->indexedAt',
+    'object.customName' = '{{owner}} [{{date}}] {{postId}} {{#internal.num}}',
+    'object.customNameModifierFlags' = 'colonRequired'
+] customsubfolder $urlval:#/hashtag/(?<val>.+)#;
+
+or
+@label[id=7, label='hashtag latest page', urlregex=~/hashtag/.+?#latest~]
+fetch via customhandler 'infinite_scroll' with [
+    'crawlDelay' = '2',
+    'templateUrl' = 'https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=%23{{hashTag}}&limit=25&cursor={{cursor}}&sort=latest',
+    'cursor' = '0',
+    'hashTag' = '$urlval: ~/hashtag/(?<val>.+?)(/|#|\?|$)~',
+    'next.cursor' = '$jsonval: $data->cursor ',
+    'targetVals' = '$jsonval: $data->posts[]',
+    'targetValsAreObjects' = 'true',
+    'object.url' = '$jsonval: $data->embed->images[]->fullsize',
+    'object.owner' = '$jsonval: $data->author->handle',
+    'object.postId' = '$text:#"uri":"at://.+?.post/(?<val>\w+)"#',
+    'object.date' = '$jsonval: $data->indexedAt',
+    'object.customName' = '{{owner}} [{{date}}] {{postId}} {{#internal.num}}',
+    'object.customNameModifierFlags' = 'colonRequired'
+] customsubfolder $urlval:#/hashtag/(?<val>.+)#;
+
+or
+@label[id=8, label='profile page', urlregex=~/profile/(.(?!/post/|#likes|#media))+$~]
+on (Profile_Download_Mode='Media') fetch rewrite url ~(.+?)(#|\?|$)~ as $1'#media' programmatically
+else on (Profile_Download_Mode='Likes') fetch rewrite url ~(.+?)(#|\?|$)~ as $1'#likes' programmatically;
+
+or
+@label[id=9, label='search page', urlregex=~/search/?\?q(.(?!#top|#latest))+$~]
+on (Search_Or_HashTag_Download_Mode='Latest') fetch rewrite url ~(.+?)(#|$)~ as $1'#latest' programmatically
+else on (Search_Or_HashTag_Download_Mode='Top') fetch rewrite url ~(.+?)(#|$)~ as $1'#top' programmatically;
+
+or
+@label[id=10, label='hashtag page', urlregex=~/hashtag/(.(?!#top|#latest))+$~]
+on (Search_Or_HashTag_Download_Mode='Latest') fetch rewrite url ~(.+?)(#|\?|$)~ as $1'#latest' programmatically
+else on (Search_Or_HashTag_Download_Mode='Top') fetch rewrite url ~(.+?)(#|\?|$)~ as $1'#top' programmatically;
+
+@values[
+@id:1(
+    'date' = $htmlval: 'meta[name="article:published_time"]' .attribute_content,
+    'owner' = $urlval: #/profile/(?<val>.+?)/post/#,
+    'postId' = $urlval: #/post/(?<val>\w+)#
+)
+@id:2(
+    'owner' = $urlval: #/profile/(?<val>.+?)/post/#,
+    'bskyFeedAPI' = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread',
+    'atProt' = 'at://' ,
+    'postId' = $urlval: #/post/(?<val>\w+)#,
+    'postFeedUrl' = e'/app.bsky.feed.post/{{postId}}' 
+)
+@id:3(
+    'did' = $jsonval:$data->did ,
+    'uriVal' = e'{{atProt}}{{did}}{{postFeedUrl}}' ,
+    'encUriVal' = $fnval:encodeValue(uriVal)
+)
+@id:4(
+    'date' = $jsonval: $data->thread->post->record->createdAt
+)
+]

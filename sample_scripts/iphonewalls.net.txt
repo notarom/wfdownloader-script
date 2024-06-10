@@ -1,0 +1,13 @@
+@directive[  
+    @id: 'iphonewalls.net'  
+    @site: https://iphonewalls.net/  
+    @pagination: { 
+        mode: allPages editable 
+        filterRegex: #/page/(\d+)# 
+    }
+]
+@label [id=1, label="Category, Search", urlregex=#\.\w+/(.(?!-wallpaper))+$#] 
+goto 'article > figure' fetch all a_href indirectly customsubfolder pagetitle nextpage location '.page-numbers' followNextPagesOfNextPages {via label 2};  
+or 
+@label [id=2, label="View Page", urlregex=#-wallpaper#] 
+goto 'a#download-wallpaper' fetch .attribute_href;

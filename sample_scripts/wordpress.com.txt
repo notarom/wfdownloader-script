@@ -1,0 +1,6 @@
+goto 'img[data-orig-file]' fetch .attribute_data-orig-file using connection 1;
+@connections[
+    @id:1( 
+       @headerField: "Accept"= "image/webp,image/apng,image/*,*/*;q=0.8"
+    )
+]
