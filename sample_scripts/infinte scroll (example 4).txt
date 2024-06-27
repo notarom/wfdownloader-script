@@ -1,0 +1,20 @@
+/*
+THIS IS A COMMENT TO EXPLAIN WHAT THIS CODE DOES, IT CAN BE REMOVED.
+The code below (from line 13) will extract the links to the screenshots
+on the scrollable steam community page https://steamcommunity.com/id/Draegonn/screenshots/
+1. '/ugc/' was used as the filter pattern to make sure only image links 
+matching that are collected.
+2. linkGrabMode was set to extreme here instead of normal because most
+of the images weren't embedded on the page the normal way. For example,
+if you right-click on some of the images, you won't be able to save them.
+All acceptable values are: normal, extensive, extreme.
+*/
+
+fetch via customhandler 'infinite_scroll_browser' with 
+[
+    'searchMode' = 'link',
+    'filterRegex' = '/ugc/', 
+    'linkGrabMode' = 'extreme',
+    'maxNumOfConsecutiveSameResults' = '3',
+    'minNumOfScrolls' = '5'
+] customsubfolder pagetitle;

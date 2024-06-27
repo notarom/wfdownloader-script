@@ -1,0 +1,13 @@
+/*
+THIS IS A COMMENT TO EXPLAIN WHAT THIS CODE DOES, IT CAN BE REMOVED.
+The code below (from line 8) will extract only pdf links while 
+scrolling down any page. That's why the filterRegex value is .pdf
+which is the file extension.
+*/
+
+fetch via customhandler 'infinite_scroll_browser' with 
+[
+    'searchMode' = 'link',
+    'filterRegex' = '.pdf', 
+    'linkGrabMode' = 'normal'
+] customsubfolder pagetitle;

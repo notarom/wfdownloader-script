@@ -1,0 +1,18 @@
+/*
+THIS IS A COMMENT TO EXPLAIN WHAT THIS CODE DOES, IT CAN BE REMOVED.
+The code below (from line 13) will extract links from any scrollable
+page when given the css selector for the element type and the attribute
+to serve as the link.
+1. The searchMode was set to element here. Other possible values are link, regex.
+2. css selector here is 'a[role]' and link attribute 'href'. Other sample
+css-selector/attribute pair and what they do are:
+a. To get all images - 'cssSelector' = 'img', 'selectorAttribute' = 'src',
+b. To get all clickable links - 'cssSelector' = 'a', 'selectorAttribute' = 'href',
+All acceptable values are: normal, extensive, extreme.
+*/
+fetch via customhandler 'infinite_scroll_browser' with 
+[
+    'searchMode' = 'element',
+    'cssSelector' = 'a[role]', 
+    'selectorAttribute' = 'href' 
+] customsubfolder pagetitle;
