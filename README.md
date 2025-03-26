@@ -1,3 +1,4 @@
+
 # wfdownloader-script
 
 This is a collection of real-world sample WFDownloader scripts in order to show how to program the WFDownloader software. The software supports scripting as a means to enable you support new websites on it. **Note that some of the scripts may already be outdated by the time you view them. It is not a goal to keep the scripts up-to-date.**
@@ -38,3 +39,36 @@ This is an image from the intro tutorial that shows the basic syntax of wfdownlo
     fetch all video_src;
 
 You can find over a hundred of the above sample scripts [here](https://github.com/notarom/wfdownloader-script/tree/main/sample_scripts).
+
+## For pages that require scrolling down
+Here are a few sample WFDownloader scripts for pages that require scrolling down to see more content, also known as infinite scroll pages. You copy and edit them as you wish.
+
+### Infinite scroll example 1 - pdf download/link mode. Explanation [here](https://github.com/notarom/wfdownloader-script/blob/main/sample_scripts/infinte%20scroll%20(example%205%20-%20pdf%20links%20extraction).txt)
+The WFDownloader script below will download pdf links while scrolling down the given page
+
+    fetch via customhandler 'infinite_scroll_browser' with 
+    [
+        'searchMode' = 'link',
+        'filterRegex' = '.pdf', 
+        'linkGrabMode' = 'normal'
+    ] customsubfolder pagetitle;
+
+### Infinite scroll example 2 - css/element mode. Explanation [here](https://github.com/notarom/wfdownloader-script/blob/main/sample_scripts/infinte%20scroll%20(example%202).txt)
+The WFDownloader script below uses css selectors to determine which html elements' links are to be collected while scrolling down the page.
+
+	fetch via customhandler 'infinite_scroll_browser' with 
+	[
+	    'searchMode' = 'element',
+	    'cssSelector' = 'img', 
+	    'selectorAttribute' = 'src',
+	    'minNumOfScrolls' = '15'
+	    'maxNumOfScrolls' = '100'
+	] customsubfolder pagetitle;
+
+To learn more about scripting WFDownloader for infinite scrolling, you can start [here](https://github.com/notarom/wfdownloader-script/blob/main/sample_scripts/infinte%20scroll%20(example%201).txt). Each Infinite scroll example builds on the previous.
+
+All real-world sample scripts [here](https://github.com/notarom/wfdownloader-script/tree/main/sample_scripts).
+
+For help with this, the best way is to write an email to support [at] wfdownloader.xyz. For other ways:
+- [Twitter](https://twitter.com/wfdownloader)
+- [Contact form](https://www.wfdownloader.xyz/contact)
